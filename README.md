@@ -7,7 +7,7 @@ that explains how to run and use the sample.
 
 Releases allow you to conveniently download sample databases or applications without the need to build them from source code. This repo has the following releases:
 
-	- [Wide World Importers sample database](https://github.com/Microsoft/sql-data-warehouse-samples/releases/tag/wide-world-importers-v1.0) is the main Azure SQL Data Warehouse sample.
+ - [Wide World Importers sample database](https://github.com/Microsoft/sql-data-warehouse-samples/releases/tag/wide-world-importers-v1.0) is the main Azure SQL Data Warehouse sample.
 
 To see the complete list of resources in this repository, navigate to [Releases](https://github.com/Microsoft/sql-data-warehouse-samples/releases).
 
