@@ -1,0 +1,10 @@
+﻿{
+  "name": "datastore-sqldw",
+  "properties": {
+    "type": "AzureSqlDW",
+    "description": "The target SQL Data Warehouse to run a management operation on",
+    "typeProperties": {
+      "connectionString": "Data Source=tcp:<servername>.database.windows.net,1433;Initial Catalog=<databasename>;User ID=<username>@<servername>;Password=<password>;Integrated Security=False;Encrypt=True;Connect Timeout=30"
+    }
+  }
+}

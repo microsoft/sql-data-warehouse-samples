@@ -1,0 +1,16 @@
+﻿{
+  "name": "dataset-input-managementoperation",
+  "properties": {
+    "type": "AzureSqlDWTable",
+    "linkedServiceName": "datastore-sqldw",
+    "typeProperties": {
+      "tableName": "sys.tables"
+      }
+    },
+    "availability": { 
+      "frequency": "Hour",
+      "interval": 1
+    },
+    "external": true,
+    "policy": {}
+}

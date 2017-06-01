@@ -1,0 +1,14 @@
+﻿{
+  "name": "linkedservice-batch-managementoperations",
+  "properties": {
+    "type": "AzureBatch",
+    "description": "The Azure Batch service to execute the SQL Data Warehouse management operations custom activity.",
+    "typeProperties": {
+      "accountName": "<Azure Batch account name>",
+      "accessKey": "<Azure Batch account key>",
+      "poolName": "<Azure Batch pool name>",
+      "batchUri": "<Azure Batch uri>",
+      "linkedServiceName": "linkedservice-storage-managementoperations"
+    }
+  }
+}

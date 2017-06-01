@@ -1,0 +1,53 @@
+﻿{
+  "name": "pipeline-managementoperations",
+  "properties": {
+    "description": "An Azure Data Factory pipeline that executes a management operation against a SQL Data Warehouse instance.",
+    "activities": [
+      {
+        "Name": "Scale Activity",
+        "Type": "DotNetActivity",
+        "Inputs": [
+          {
+            "Name": "dataset-input-managementoperation"
+          }
+        ],
+        "Outputs": [
+          {
+            "Name": "dataset-output-managementoperation"
+          }
+        ],
+        "LinkedServiceName": "linkedservice-batch-managementoperations",
+        "typeProperties": {
+          "AssemblyName": "SqlDataWarehouseManagementOperations.dll",
+          "EntryPoint": "Microsoft.Azure.SqlDataWarehouse.Management.ManagementActivity",
+          "PackageLinkedService": "linkedservice-storage-managementoperations",
+          "PackageFile": "adfdemo/mo.zip",
+          "extendedProperties": {
+            "SliceStart": "$$Text.Format('{0:yyyyMMddHH-mm}', Time.AddMinutes(SliceStart, 0))",
+            "ActionType": "Pause|Resume|Scale",
+            "Location": "<Location e.g., West US, Central US>",
+            "ResourceGroup": "<Resource Group Name>",
+            "SubscriptionId": "00000000-0000-0000-0000-000000000000",
+            "ServiceObjective": "DW1000"
+          }
+        },
+        "Policy": {
+          "timeout": "1.00:00:00",
+          "concurrency": 1,
+          "style": "StartOfInterval",
+          "retry": 3,
+          "longRetry": 2,
+          "longRetryInterval": "00:10:00"
+        },
+        "scheduler": {
+          "frequency": "Hour",
+          "interval": 1
+        }
+      }
+    ],
+    "start": "2017-05-01T00:00:00Z",
+    "end": "2017-12-31T05:00:00Z",
+    "isPaused": false,
+    "pipelineMode": "Scheduled"
+  }
+}

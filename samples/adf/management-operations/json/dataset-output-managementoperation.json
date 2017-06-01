@@ -1,0 +1,26 @@
+﻿{
+    "name": "dataset-output-managementoperation",
+    "properties": {
+        "published": false,
+        "type": "AzureBlob",
+        "linkedServiceName": "linkedservice-storage-managementoperations",
+      "typeProperties": {
+        "fileName": "{slice}.txt",
+        "folderPath": "adfdemo/outpu/",
+        "partitionedBy": [
+          {
+            "name": "slice",
+            "value": {
+              "type": "DateTime",
+              "date": "SliceStart",
+              "format": "yyyy-MM-dd"
+            }
+          }
+        ]
+      },
+        "availability": {
+            "frequency": "Hour",
+            "interval": 1
+        }
+    }
+}

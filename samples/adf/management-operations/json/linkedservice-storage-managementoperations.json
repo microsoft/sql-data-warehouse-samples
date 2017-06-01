@@ -1,0 +1,10 @@
+﻿{
+  "name": "linkedservice-storage-managementoperations",
+  "properties": {
+    "type": "AzureStorage",
+    "description": "The storage location for the SQL Data Warehouse management operations customer activity.",
+    "typeProperties": {
+      "connectionString": "DefaultEndpointsProtocol=https;AccountName=<AccountName>;AccountKey=<AccountKey>"
+    }
+  }
+}
