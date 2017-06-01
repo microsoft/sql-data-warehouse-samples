@@ -25,6 +25,8 @@
           "extendedProperties": {
             "SliceStart": "$$Text.Format('{0:yyyyMMddHH-mm}', Time.AddMinutes(SliceStart, 0))",
             "ActionType": "Pause|Resume|Scale",
+            "AdfClientId": "",
+            "AdfClientSecret":  "",
             "Location": "<Location e.g., West US, Central US>",
             "ResourceGroup": "<Resource Group Name>",
             "SubscriptionId": "00000000-0000-0000-0000-000000000000",

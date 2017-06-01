@@ -20,6 +20,9 @@ namespace Microsoft.Azure.SqlDataWarehouse.Management
         private const string AZURE_DATAWAREHOUSE_SCALE_URL_PART = @"subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Sql/servers/{2}/databases/{3}?api-version=2014-04-01-preview";
         private const string AZURE_DATAWAREHOUSE_STATUS_URL_PART = @"subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Sql/servers/{2}/databases/{3}?api-version=2014-04-01-preview";
 
+
+        private const string EXTENDED_PROPERTY_ADF_CLIENT_ID = "AdfClientId";
+        private const string EXTENDED_PROPERTY_ADF_CLIENT_SECRET = "AdfClientId";
         private const string EXTENDED_PROPERTY_LOCATION = "Location";
         private const string EXTENDED_PROPERTY_RESOURCE_GROUP = "ResourceGroup";
         private const string EXTENDED_PROPERTY_SUBSCRIPTION_ID = "SubscriptionId";
@@ -27,6 +30,10 @@ namespace Microsoft.Azure.SqlDataWarehouse.Management
         private const string STATUS_PROPERTY = "properties.status";
 
         private const string USER_AGENT = "ManagementActivityADF";
+
+        private string AdfClientId { get; set; }
+
+        private string AdfClientSecret { get; set; }
 
         private string BuildUrl(string baseUrl, Instance instance)
         {
@@ -63,6 +70,10 @@ namespace Microsoft.Azure.SqlDataWarehouse.Management
 
                 // Log all of the extended properties
                 IDictionary<string, string> extendedProperties = dotNetActivity.ExtendedProperties;
+
+                // Get the ADF Client Id and Secret
+                AdfClientId = extendedProperties[EXTENDED_PROPERTY_ADF_CLIENT_ID];
+                AdfClientSecret = extendedProperties[EXTENDED_PROPERTY_ADF_CLIENT_SECRET];
 
                 // Log the extended properties
                 LogExtendedProperties(extendedProperties);
@@ -111,8 +122,6 @@ namespace Microsoft.Azure.SqlDataWarehouse.Management
 
         private string GetAccessToken()
         {
-            string AdfClientId = "7e2843e6-9700-43a7-82e8-cbb01cb0fb82";
-            string AdfClientSecret = "DsAjgWbnF+RK/1e6V7yEODWgqLShcuDrgZ6BbDcUlUE=";
             AuthenticationResult result = null;
 
             var context = new AuthenticationContext("https://login.windows.net/microsoft.onmicrosoft.com");
