@@ -192,7 +192,7 @@ namespace Microsoft.Azure.SqlDataWarehouse.Management
             return client;
         }
 
-        public StateType GetState(Instance instance)
+        private StateType GetState(Instance instance)
         {
             // Validate the input
             instance.ThrowIfNull();
@@ -262,7 +262,7 @@ namespace Microsoft.Azure.SqlDataWarehouse.Management
             return (StateType)Enum.Parse(typeof(StateType), stateToken.ToString());
         }
 
-        public void ProcessAction(ActionType actionType, Instance instance)
+        private void ProcessAction(ActionType actionType, Instance instance)
         {
             // Validate input
             actionType.ThrowIfNull();
@@ -286,7 +286,7 @@ namespace Microsoft.Azure.SqlDataWarehouse.Management
             }
         }
 
-        public StateType Pause(Instance instance)
+        private StateType Pause(Instance instance)
         {
             // Validate the input
             instance.ThrowIfNull();
@@ -300,7 +300,7 @@ namespace Microsoft.Azure.SqlDataWarehouse.Management
             return StateType.Pausing;
         }
 
-        public StateType Resume(Instance instance)
+        private StateType Resume(Instance instance)
         {
             // Validate the input
             instance.ThrowIfNull();
@@ -314,7 +314,7 @@ namespace Microsoft.Azure.SqlDataWarehouse.Management
             return StateType.Resuming;
         }
 
-        public StateType Scale(Instance instance)
+        private StateType Scale(Instance instance)
         {
             // Validate the input
             instance.ThrowIfNull();
