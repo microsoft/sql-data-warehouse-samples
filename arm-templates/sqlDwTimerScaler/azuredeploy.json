@@ -139,6 +139,9 @@
             "type": "String",
             "metadata": {
                 "description": "Accessible uri where the deployable zip file resides."
+            },
+            "defaultValue": {
+                "value": "https://github.com/hirokib/sql-data-warehouse-samples/blob/master/arm-templates/sqlDwTimerScaler/sqlDwTimerScaler/DWTimerScaler.zip?raw=true"
             }
         }
     },
