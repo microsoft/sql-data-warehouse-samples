@@ -3,25 +3,25 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "sqlDwResourceGroup": {
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "The resource group of your pre-existing SQL Data Warehouse."
             }
         },
         "sqlDwServerName": {
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "The server name of your pre-existing SQL Data Warehouse."
             }
         },
         "sqlDwDatabaseName": {
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "The database name of your pre-existing SQL Data Warehouse."
             }
         },
         "appName": {
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "The name of the function app that you wish to create."
             }
@@ -33,29 +33,29 @@
                 "Standard_GRS",
                 "Standard_RAGRS"
             ],
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "Storage Account type that will be used to host logs and the queue mechanism."
             }
         },
         "tenantId":{
-            "type": "String",
+            "type": "string",
             "metadata": "Azure Active Directory ID where Serivce Principal Account was created."
         },
         "subscriptionId":{
-            "type": "String",
+            "type": "string",
             "metadata": "Subscription GUID of the the subscription where the SQL Data Warehouse instance resides."
         },
         "clientId":{
-            "type": "String",
+            "type": "string",
             "metadata": "ApplicationId of the Service Principal account with access to SQL Data Warehouse instance."
         },
         "clientKey":{
-            "type": "SecureString",
+            "type": "secureString",
             "metadata": "Secret Key of the Service Principal account."
         },
         "WEBSITE_TIME_ZONE":{
-            "type": "String",
+            "type": "string",
             "metadata": "Timezone relative to the schedule. Consult https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx for more information",
             "allowedValues": [
                 "Dateline Standard Time",
@@ -136,7 +136,7 @@
             ]
         },
         "codePackageLocation": {
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "Accessible uri where the deployable zip file resides."
             },
