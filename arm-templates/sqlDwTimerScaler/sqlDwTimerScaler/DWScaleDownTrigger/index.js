@@ -1,7 +1,7 @@
-module.exports = function (context, scaleUpTimer) {
+module.exports = function (context, scaleDownTimer) {
     var timeStamp = new Date().toISOString();
     
-    if(scaleUpTimer.isPastDue)
+    if(scaleDownTimer.isPastDue)
     {
         context.log('JavaScript is running late!');
     }
