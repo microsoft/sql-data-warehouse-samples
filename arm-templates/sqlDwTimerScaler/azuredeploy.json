@@ -261,9 +261,9 @@
         "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
         "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
         "scaleUpTimeMinute": "[replace(split(substring(parameters('scaleUpTime'), 11, 5), ':')[1],'00', '0')]",
-        "scaleUpTimeHour": "[replace(split(substring(parameters('scaleUpTime'), 11, 5), ':')[0], '00', '0')]",
-        "scaleDownTimeMinute": "[split(substring(parameters('scaleUpTime'), 11, 5), ':')[1]]",
-        "scaleDownTimeHour": "[split(substring(parameters('scaleUpTime'), 11, 5), ':')[0]]",
+        "scaleUpTimeHour": "[split(substring(parameters('scaleUpTime'), 11, 5), ':')[0]]",
+        "scaleDownTimeMinute": "[replace(split(substring(parameters('scaleDownTime'), 11, 5), ':')[1], '00', '0')]",
+        "scaleDownTimeHour": "[split(substring(parameters('scaleDownTime'), 11, 5), ':')[0]]",
         "scaleUpTime": "[replace(replace('0 x y * * *', 'x', variables('scaleUpTimeMinute')), 'y', variables('scaleUpTimeHour'))]",
         "scaleDownTime": "[replace(replace('0 x y * * *', 'x', variables('scaleDownTimeMinute')), 'y', variables('scaleDownTimeHour'))]"
     },
