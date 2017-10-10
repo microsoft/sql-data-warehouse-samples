@@ -8,6 +8,23 @@ module.exports = function (context, operationRequest) {
     var scaleValue = context.bindings.operationRequest["ServiceLevelObjective"];
     
     context.log('Operation request for: '+operation+' with scale value: '+scaleValue);
-    GetAuthToken(context, operation, scaleValue);
-    context.done();
+    // Functions cannot be evaluated by name without using unsafe eval function so a switch
+    // statement is used here to choose the appropriate function.
+    switch(operation) {
+        case "ScaleDw":
+            GetAuthToken(context, ScaleDw, scaleValue);
+            context.done();
+            break;
+        case "ResumeDw":
+            GetAuthToken(context, ResumeDw, null);
+            context.done();
+            break;
+        case "PauseDw":
+            GetAuthToken(context, PauseDw, null);
+            context.done();
+            break;
+        default:
+            context.done();
+            break;
+    }   
 };
