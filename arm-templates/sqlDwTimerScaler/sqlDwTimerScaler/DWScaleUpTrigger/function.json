@@ -4,7 +4,7 @@
       "name": "scaleUpTimer",
       "type": "timerTrigger",
       "direction": "in",
-      "schedule": "ScaleUpTime"
+      "schedule": "%ScaleUpTime%"
     },
     {
       "type": "queue",

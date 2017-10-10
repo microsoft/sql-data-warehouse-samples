@@ -4,7 +4,7 @@
       "name": "scaleDownTimer",
       "type": "timerTrigger",
       "direction": "in",
-      "schedule": "ScaleDownTime"
+      "schedule": "%ScaleDownTime%"
     },
     {
       "type": "queue",

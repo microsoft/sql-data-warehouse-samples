@@ -353,11 +353,11 @@
                         },
                         {
                             "name": "ScaleUpTime",
-                            "value": "[parameters('scaleUpTime')]"
+                            "value": "[variables('scaleUpTime')]"
                         },
                         {
                             "name": "ScaleDownTime",
-                            "value": "[parameters('scaleDownTime')]"
+                            "value": "[variables('scaleDownTime')]"
                         }
                     ]
                 }
