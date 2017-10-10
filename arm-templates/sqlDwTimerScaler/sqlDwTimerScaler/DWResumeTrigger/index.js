@@ -1,14 +1,13 @@
-module.exports = function (context, scaleDownTimer) {
+module.exports = function (context, resumeTimer) {
     var timeStamp = new Date().toISOString();
     
-    if(scaleDownTimer.isPastDue)
+    if(resumeTimer.isPastDue)
     {
         context.log('JavaScript is running late!');
     }
     context.log('JavaScript timer trigger function ran!', timeStamp);   
     var operation = {
-        "operationType": "ScaleDw",
-        "ServiceLevelObjective": "DW100"
+        "operationType": "ResumeDw"
     }
     context.bindings.operationRequest = operation;
     context.done();

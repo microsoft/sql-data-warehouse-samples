@@ -135,6 +135,118 @@
                 "Tonga Standard Time"
             ]
         },
+        "scaleUpTime": {
+            "type": "string",
+            "metadata": {
+                "description": "Time of day when data warehouse will be scaled up."
+            },
+            "allowedValues": [
+                "12:00 AM ( 00:00 )",
+                "12:30 AM ( 00:30 )",
+                "01:00 AM ( 01:00 )",
+                "01:30 AM ( 01:30 )",
+                "02:00 AM ( 02:00 )",
+                "02:30 AM ( 02:30 )",
+                "03:00 AM ( 03:00 )",
+                "03:30 AM ( 03:30 )",
+                "04:00 AM ( 04:00 )",
+                "04:30 AM ( 04:30 )",
+                "05:00 AM ( 05:00 )",
+                "05:30 AM ( 05:30 )",
+                "06:00 AM ( 06:00 )",
+                "06:30 AM ( 06:30 )",
+                "07:00 AM ( 07:00 )",
+                "07:30 AM ( 07:30 )",
+                "08:00 AM ( 08:00 )",
+                "08:30 AM ( 08:30 )",
+                "09:00 AM ( 09:00 )",
+                "09:30 AM ( 09:30 )",
+                "10:00 AM ( 10:00 )",
+                "10:30 AM ( 10:30 )",
+                "11:00 AM ( 11:00 )",
+                "11:30 AM ( 11:30 )",
+                "12:00 PM ( 12:00 )",
+                "12:30 PM ( 12:30 )",
+                "01:00 PM ( 13:00 )",
+                "01:30 PM ( 13:30 )",
+                "02:00 PM ( 14:00 )",
+                "02:30 PM ( 14:30 )",
+                "03:00 PM ( 15:00 )",
+                "03:30 PM ( 15:30 )",
+                "04:00 PM ( 16:00 )",
+                "04:30 PM ( 16:30 )",
+                "05:00 PM ( 17:00 )",
+                "05:30 PM ( 17:30 )",
+                "06:00 PM ( 18:00 )",
+                "06:30 PM ( 18:30 )",
+                "07:00 PM ( 19:00 )",
+                "07:30 PM ( 19:30 )",
+                "08:00 PM ( 20:00 )",
+                "08:30 PM ( 20:30 )",
+                "09:00 PM ( 21:00 )",
+                "09:30 PM ( 21:30 )",
+                "10:00 PM ( 22:00 )",
+                "10:30 PM ( 22:30 )",
+                "11:00 PM ( 23:00 )",
+                "11:30 PM ( 23:30 )"
+            ]
+        },
+        "scaleDownTime": {
+            "type": "string",
+            "metadata": {
+                "description": "Time of day when data warehouse will be scaled down."
+            },
+            "allowedValues": [
+                "12:00 AM ( 00:00 )",
+                "12:30 AM ( 00:30 )",
+                "01:00 AM ( 01:00 )",
+                "01:30 AM ( 01:30 )",
+                "02:00 AM ( 02:00 )",
+                "02:30 AM ( 02:30 )",
+                "03:00 AM ( 03:00 )",
+                "03:30 AM ( 03:30 )",
+                "04:00 AM ( 04:00 )",
+                "04:30 AM ( 04:30 )",
+                "05:00 AM ( 05:00 )",
+                "05:30 AM ( 05:30 )",
+                "06:00 AM ( 06:00 )",
+                "06:30 AM ( 06:30 )",
+                "07:00 AM ( 07:00 )",
+                "07:30 AM ( 07:30 )",
+                "08:00 AM ( 08:00 )",
+                "08:30 AM ( 08:30 )",
+                "09:00 AM ( 09:00 )",
+                "09:30 AM ( 09:30 )",
+                "10:00 AM ( 10:00 )",
+                "10:30 AM ( 10:30 )",
+                "11:00 AM ( 11:00 )",
+                "11:30 AM ( 11:30 )",
+                "12:00 PM ( 12:00 )",
+                "12:30 PM ( 12:30 )",
+                "01:00 PM ( 13:00 )",
+                "01:30 PM ( 13:30 )",
+                "02:00 PM ( 14:00 )",
+                "02:30 PM ( 14:30 )",
+                "03:00 PM ( 15:00 )",
+                "03:30 PM ( 15:30 )",
+                "04:00 PM ( 16:00 )",
+                "04:30 PM ( 16:30 )",
+                "05:00 PM ( 17:00 )",
+                "05:30 PM ( 17:30 )",
+                "06:00 PM ( 18:00 )",
+                "06:30 PM ( 18:30 )",
+                "07:00 PM ( 19:00 )",
+                "07:30 PM ( 19:30 )",
+                "08:00 PM ( 20:00 )",
+                "08:30 PM ( 20:30 )",
+                "09:00 PM ( 21:00 )",
+                "09:30 PM ( 21:30 )",
+                "10:00 PM ( 22:00 )",
+                "10:30 PM ( 22:30 )",
+                "11:00 PM ( 23:00 )",
+                "11:30 PM ( 23:30 )"      
+            ]
+        },
         "codePackageLocation": {
             "type": "string",
             "metadata": {
@@ -147,7 +259,13 @@
         "functionAppName": "[parameters('appName')]",
         "hostingPlanName": "[parameters('appName')]",
         "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
-        "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
+        "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+        "scaleUpTimeMinute": "[split(substring(parameters('scaleUpTime'), 11, 5), ':')[1]]",
+        "scaleUpTimeHour": "[split(substring(parameters('scaleUpTime'), 11, 5), ':')[0]]",
+        "scaleDownTimeMinute": "[split(substring(parameters('scaleUpTime'), 11, 5), ':')[1]]",
+        "scaleDownTimeHour": "[split(substring(parameters('scaleUpTime'), 11, 5), ':')[0]]",
+        "scaleUpTime": "[replace(replace('0 x y * * *', 'x', variables('scaleUpTimeMinute')), 'y', variables('scaleUpTimeHour'))]",
+        "scaleDownTime": "[replace(replace('0 x y * * *', 'x', variables('scaleDownTimeMinute')), 'y', variables('scaleDownTimeHour'))]"
     },
     "resources": [
         {
@@ -232,6 +350,14 @@
                         {
                             "name": "DatabaseName",
                             "value": "[parameters('sqlDwDatabaseName')]"
+                        },
+                        {
+                            "name": "ScaleUpTime",
+                            "value": "[parameters('scaleUpTime')]"
+                        },
+                        {
+                            "name": "ScaleDownTime",
+                            "value": "[parameters('scaleDownTime')]"
                         }
                     ]
                 }

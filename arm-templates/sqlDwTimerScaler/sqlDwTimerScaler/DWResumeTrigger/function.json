@@ -1,10 +1,10 @@
 {
   "bindings": [
     {
-      "name": "scaleUpTimer",
+      "name": "resumeTimer",
       "type": "timerTrigger",
       "direction": "in",
-      "schedule": "ScaleUpTime"
+      "schedule": "0 0 8 * * 1-5"
     },
     {
       "type": "queue",
@@ -14,5 +14,5 @@
       "direction": "out"
     }
   ],
-  "disabled": false
+  "disabled": true
 }

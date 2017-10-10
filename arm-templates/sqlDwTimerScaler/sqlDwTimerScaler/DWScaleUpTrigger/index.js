@@ -7,6 +7,7 @@ module.exports = function (context, scaleUpTimer) {
     }
     context.log('JavaScript timer trigger function ran!', timeStamp);   
     var operation = {
+        "operationType": "ScaleDw",
         "ServiceLevelObjective": "DW400"
     }
     context.bindings.operationRequest = operation;
