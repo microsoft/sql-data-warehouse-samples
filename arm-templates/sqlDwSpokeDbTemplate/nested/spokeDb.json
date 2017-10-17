@@ -1,0 +1,87 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": { 
+        "databaseCount":{
+            "type": "int"
+        },
+        "serverLocation":{ "type": "string"},
+        "serverName": { "type": "string"},
+        "administratorLogin": { "type": "string"},
+        "administratorLoginPassword": { "type": "string"},
+        "elasticPoolName": { "type": "string"},
+        "poolEdition":{ "type": "string"},
+        "poolDtu":{ "type": "int"},
+        "poolSize":{ "type": "int"},
+        "databaseDtuMin":{ "type": "string"},
+        "spokeDbDTU":{ "type": "int"},
+        "databaseName":{ "type": "string"},
+        "collation":{ "type": "string", "defaultValue": "SQL_Latin1_General_CP1_CI_AS"},
+        "sampleName":{ "type": "string"}
+     },
+    "variables": {  },
+    "resources": [ 
+        {
+            "apiVersion": "2015-05-01-preview",
+            "location": "[parameters('serverLocation')]",
+            "name": "[parameters('serverName')]",
+            "properties": {
+                "administratorLogin": "[parameters('administratorLogin')]",
+                "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+                "version": "12.0"
+            },
+            "resources": [
+                {
+                    "apiVersion": "2015-05-01-preview",
+                    "dependsOn": [
+                        "[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
+                    ],
+                    "location": "[parameters('serverLocation')]",
+                    "name": "[concat(parameters('serverName'), '/', parameters('elasticPoolName'))]",
+                    "properties": {
+                        "edition": "[parameters('poolEdition')]",
+                        "dtu": "[parameters('poolDtu')]",
+                        "storageMB": "[parameters('poolSize')]",
+                        "databaseDtuMin": "[parameters('databaseDtuMin')]",
+                        "spokeDbDTU": "[parameters('spokeDbDTU')]"
+                    },
+                    "type": "Microsoft.Sql/servers/elasticpools"
+                },
+                {
+                    "apiVersion": "2015-05-01-preview",
+                    "dependsOn": [
+                        "[concat('Microsoft.Sql/servers/', parameters('serverName'))]",
+                        "[concat('Microsoft.Sql/servers/', parameters('serverName'), '/elasticpools/', parameters('elasticPoolName'))]"
+                    ],
+                    "location": "[parameters('serverLocation')]",
+                    "name": "[parameters('databaseName')]",
+                    "properties": {
+                        "collation": "[parameters('collation')]",
+                        "elasticPoolName": "[parameters('elasticPoolName')]",
+                        "sampleName": "[parameters('sampleName')]"
+                    },
+                    "type": "databases",
+                    "copy": {
+                        "name": "spokeDbCopy",
+                        "count": 2
+                    }
+                },
+                {
+                    "apiVersion": "2015-05-01-preview",
+                    "dependsOn": [
+                        "[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
+                    ],
+                    "location": "[parameters('serverLocation')]",
+                    "name": "AllowAllWindowsAzureIps",
+                    "properties": {
+                        "endIpAddress": "0.0.0.0",
+                        "startIpAddress": "255.255.255.255"
+                    },
+                    "type": "firewallrules"
+                }
+            ],
+            "type": "Microsoft.Sql/servers"
+        }
+     ],
+    "outputs": {  }
+}
