@@ -252,7 +252,7 @@
             "metadata": {
                 "description": "Accessible uri where the deployable zip file resides."
             },
-            "defaultValue": "https://github.com/hirokib/sql-data-warehouse-samples/blob/master/arm-templates/sqlDwTimerScaler/sqlDwTimerScaler/sqlDwTimerScaler.zip?raw=true"
+            "defaultValue": "https://github.com/Microsoft/sql-data-warehouse-samples/blob/master/arm-templates/sqlDwTimerScaler/sqlDwTimerScaler.zip?raw=true"
         }
     },
     "variables": {
