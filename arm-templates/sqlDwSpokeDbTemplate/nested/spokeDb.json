@@ -1,27 +1,25 @@
 {
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "databaseCount": {
-            "type": "int"
+        "collation": {
+            "type": "string"
         },
-        "serverLocation": {
+        "databaseName": {
             "type": "string"
         },
         "serverName": {
             "type": "string"
         },
-        "administratorLogin": {
-            "type": "string"
-        },
-        "administratorLoginPassword": {
+        "serverLocation": {
             "type": "string"
         },
         "elasticPoolName": {
             "type": "string"
         },
         "poolEdition": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "PremiumRS"
         },
         "poolDtu": {
             "type": "int"
@@ -30,52 +28,45 @@
             "type": "int"
         },
         "databaseDtuMin": {
-            "type": "string"
-        },
-        "spokeDbDTU": {
             "type": "int"
         },
-        "databaseName": {
-            "type": "string"
+        "databaseDtuMax": {
+            "type": "int"
         },
-        "collation": {
-            "type": "string",
-            "defaultValue": "SQL_Latin1_General_CP1_CI_AS"
+        "databaseCount": {
+            "type": "int"
         }
     },
-    "variables": {},
-    "resources": [{
-                "apiVersion": "2015-05-01-preview",
-                "dependsOn": [
-                ],
-                "location": "[parameters('serverLocation')]",
-                "name": "[concat(parameters('serverName'), '/', parameters('elasticPoolName'))]",
-                "properties": {
-                    "edition": "[parameters('poolEdition')]",
-                    "dtu": "[parameters('poolDtu')]",
-                    "storageMB": "[parameters('poolSize')]",
-                    "databaseDtuMin": "[parameters('databaseDtuMin')]",
-                    "spokeDbDTU": "[parameters('spokeDbDTU')]"
-                },
-                "type": "Microsoft.Sql/servers/elasticPools"
+    "resources": [
+        {
+            "apiVersion": "2014-04-01",
+            "location": "[parameters('serverLocation')]",
+            "name": "[concat(parameters('serverName'), '/', parameters('elasticPoolName'))]",
+            "properties": {
+                "edition": "[parameters('poolEdition')]",
+                "dtu": "[parameters('poolDtu')]",
+                "storageMB": "[parameters('poolSize')]",
+                "databaseDtuMin": "[parameters('databaseDtuMin')]",
+                "databaseDtuMax": "[parameters('databaseDtuMax')]"
             },
-            {
-                "apiVersion": "2015-05-01-preview",
-                "dependsOn": [
-                    "[concat('Microsoft.Sql/servers/', parameters('serverName'), '/elasticpools/', parameters('elasticPoolName'))]"
-                ],
-                "location": "[parameters('serverLocation')]",
-                "name": "[concat(parameters('serverName'), '/',parameters('databaseName'), 'n', copyIndex())]",
-                "properties": {
-                    "collation": "[parameters('collation')]",
-                    "elasticPoolName": "[parameters('elasticPoolName')]"
-                },
-                "type": "Microsoft.Sql/servers/databases",
-                "copy": {
-                    "name": "spokeDbCopy",
-                    "count": "[parameters('databaseCount')]"
-                }
+            "type": "Microsoft.Sql/servers/elasticPools"
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases",
+            "apiVersion": "2014-04-01-preview",
+            "location": "[parameters('serverLocation')]",
+            "name": "[concat(parameters('serverName'), '/', parameters('databaseName'), 'n', copyIndex())]",
+            "dependsOn": [
+                "[concat('Microsoft.Sql/servers/', parameters('serverName'), '/elasticpools/', parameters('elasticPoolName'))]"
+            ],
+            "properties": {
+                "collation": "[parameters('collation')]",
+                "elasticPoolName": "[parameters('elasticPoolName')]"
+            },
+            "copy": {
+                "name": "spokeDbCopy",
+                "count": 2
             }
-        ],
-    "outputs": {}
+        }
+    ]
 }

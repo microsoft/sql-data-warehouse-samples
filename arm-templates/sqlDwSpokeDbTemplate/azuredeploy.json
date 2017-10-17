@@ -59,9 +59,6 @@
                 "contentVersion": "1.0.0.0"
             },
             "parameters": {
-                "spokeDbDTU": {
-                    "value": "[variables('spokeDbDTU')]"
-                },
                 "databaseCount": {
                     "value": 2
                 },
@@ -80,9 +77,6 @@
                 "administratorLoginPassword": {
                     "value": "dogmat1C"
                 },
-                "elasticPoolName": {
-                    "value": "[variables('elasticPoolName')]"
-                },
                 "poolEdition": {
                     "value": "PremiumRS"
                 },
@@ -93,7 +87,13 @@
                     "value": 256000
                 },
                 "databaseDtuMin": {
-                    "value": 125
+                    "value": 0
+                },
+                "databaseDtuMax": {
+                    "value": 1000
+                },
+                "elasticPoolName": {
+                    "value": "[variables('elasticPoolName')]"
                 }
             }
 
