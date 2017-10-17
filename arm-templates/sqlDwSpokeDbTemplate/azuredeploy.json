@@ -43,7 +43,7 @@
         // }
     },
     "variables": {
-        "spokeTemplateUri": "https://github.com/hirokib/sql-data-warehouse-samples/tree/master/arm-templates/sqlDwSpokeDbTemplate/nested/spokeDb.json",
+        "spokeTemplateUri": "https://raw.githubusercontent.com/hirokib/sql-data-warehouse-samples/master/arm-templates/sqlDwSpokeDbTemplate/nested/spokeDb.json",
         "spokeDbPerformanceType": "PremiumRS",
         "spokeDbDTU": "250",
         "elasticPoolName": "[concat('Pool', uniquestring(resourceGroup().id))]"
@@ -65,23 +65,23 @@
                 "serverName": {
                     "value": "sampleeqsvr"
                 },
-                "sqlDwDatabaseName": {
-                    "value": "sampleeqdw"
-                },
+                // "sqlDwDatabaseName": {
+                //     "value": "sampleeqdw"
+                // },
                 "serverLocation": {
                     "value": "westus"
                 },
-                "administratorLogin": {
-                    "value": "cloudSA"
-                },
-                "administratorLoginPassword": {
-                    "value": "dogmat1C"
-                },
+                // "administratorLogin": {
+                //     "value": "cloudSA"
+                // },
+                // "administratorLoginPassword": {
+                //     "value": "dogmat1C"
+                // },
                 "poolEdition": {
                     "value": "PremiumRS"
                 },
                 "poolDtu": {
-                    "value": 125
+                    "value": 1000
                 },
                 "poolSize": {
                     "value": 256000
@@ -90,7 +90,7 @@
                     "value": 0
                 },
                 "databaseDtuMax": {
-                    "value": 1000
+                    "value": 125
                 },
                 "elasticPoolName": {
                     "value": "[variables('elasticPoolName')]"
