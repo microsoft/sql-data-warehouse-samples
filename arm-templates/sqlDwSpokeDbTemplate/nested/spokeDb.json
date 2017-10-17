@@ -58,7 +58,7 @@
                     "databaseDtuMin": "[parameters('databaseDtuMin')]",
                     "spokeDbDTU": "[parameters('spokeDbDTU')]"
                 },
-                "type": "Microsoft.Sql/servers/elasticpools"
+                "type": "Microsoft.Sql/servers/elasticPools"
             },
             {
                 "apiVersion": "2015-05-01-preview",
@@ -67,29 +67,16 @@
                     "[concat('Microsoft.Sql/servers/', parameters('serverName'), '/elasticpools/', parameters('elasticPoolName'))]"
                 ],
                 "location": "[parameters('serverLocation')]",
-                "name": "[parameters('databaseName')]",
+                "name": "[concat(parameters('serverName'), '/',parameters('databaseName'))]",
                 "properties": {
                     "collation": "[parameters('collation')]",
                     "elasticPoolName": "[parameters('elasticPoolName')]"
                 },
-                "type": "databases",
+                "type": "Microsoft.Sql/servers/databases",
                 "copy": {
                     "name": "spokeDbCopy",
                     "count": "[parameters('databaseCount')]"
                 }
-            },
-            {
-                "apiVersion": "2015-05-01-preview",
-                "dependsOn": [
-                    "[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
-                ],
-                "location": "[parameters('serverLocation')]",
-                "name": "AllowAllWindowsAzureIps",
-                "properties": {
-                    "endIpAddress": "0.0.0.0",
-                    "startIpAddress": "255.255.255.255"
-                },
-                "type": "firewallrules"
             }
         ],
     "outputs": {}
