@@ -47,7 +47,6 @@
     "resources": [{
                 "apiVersion": "2015-05-01-preview",
                 "dependsOn": [
-                    "[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
                 ],
                 "location": "[parameters('serverLocation')]",
                 "name": "[concat(parameters('serverName'), '/', parameters('elasticPoolName'))]",
@@ -63,7 +62,6 @@
             {
                 "apiVersion": "2015-05-01-preview",
                 "dependsOn": [
-                    "[concat('Microsoft.Sql/servers/', parameters('serverName'))]",
                     "[concat('Microsoft.Sql/servers/', parameters('serverName'), '/elasticpools/', parameters('elasticPoolName'))]"
                 ],
                 "location": "[parameters('serverLocation')]",
