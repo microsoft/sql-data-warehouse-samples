@@ -1,26 +1,53 @@
 {
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": { 
-        "databaseCount":{
+    "parameters": {
+        "databaseCount": {
             "type": "int"
         },
-        "serverLocation":{ "type": "string"},
-        "serverName": { "type": "string"},
-        "administratorLogin": { "type": "string"},
-        "administratorLoginPassword": { "type": "string"},
-        "elasticPoolName": { "type": "string"},
-        "poolEdition":{ "type": "string"},
-        "poolDtu":{ "type": "int"},
-        "poolSize":{ "type": "int"},
-        "databaseDtuMin":{ "type": "string"},
-        "spokeDbDTU":{ "type": "int"},
-        "databaseName":{ "type": "string"},
-        "collation":{ "type": "string", "defaultValue": "SQL_Latin1_General_CP1_CI_AS"},
-        "sampleName":{ "type": "string"}
-     },
-    "variables": {  },
-    "resources": [ 
+        "serverLocation": {
+            "type": "string"
+        },
+        "serverName": {
+            "type": "string"
+        },
+        "administratorLogin": {
+            "type": "string"
+        },
+        "administratorLoginPassword": {
+            "type": "string"
+        },
+        "elasticPoolName": {
+            "type": "string"
+        },
+        "poolEdition": {
+            "type": "string"
+        },
+        "poolDtu": {
+            "type": "int"
+        },
+        "poolSize": {
+            "type": "int"
+        },
+        "databaseDtuMin": {
+            "type": "string"
+        },
+        "spokeDbDTU": {
+            "type": "int"
+        },
+        "databaseName": {
+            "type": "string"
+        },
+        "collation": {
+            "type": "string",
+            "defaultValue": "SQL_Latin1_General_CP1_CI_AS"
+        },
+        "sampleName": {
+            "type": "string"
+        }
+    },
+    "variables": {},
+    "resources": [
         {
             "apiVersion": "2015-05-01-preview",
             "location": "[parameters('serverLocation')]",
@@ -63,7 +90,7 @@
                     "type": "databases",
                     "copy": {
                         "name": "spokeDbCopy",
-                        "count": 2
+                        "count": "[parameters('databaseCount')]"
                     }
                 },
                 {
@@ -82,6 +109,6 @@
             ],
             "type": "Microsoft.Sql/servers"
         }
-     ],
-    "outputs": {  }
+    ],
+    "outputs": {}
 }

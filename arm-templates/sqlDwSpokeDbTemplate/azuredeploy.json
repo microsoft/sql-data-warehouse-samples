@@ -1,7 +1,7 @@
 {
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": { 
+    "parameters": {
         // "serverName": {
         //     "type": "string",
         //     "metadata": {
@@ -41,44 +41,66 @@
         //     },
         //     "defaultValue": "autoP@ssword!"
         // }
-     },
-    "variables": { 
-        "nestedFolder": "https://github.com/hirokib/sql-data-warehouse-samples/tree/master/arm-templates/sqlDwSpokeDbTemplate/nested/",
+    },
+    "variables": {
+        "spokeTemplateUri": "https://github.com/hirokib/sql-data-warehouse-samples/tree/master/arm-templates/sqlDwSpokeDbTemplate/nested/spokeDb.json",
         "spokeDbPerformanceType": "PremiumRS",
         "spokeDbDTU": "250",
         "elasticPoolName": "[concat('Pool', uniquestring(resourceGroup().id))]"
-     },
-    "resources": [ 
-        {
-            "apiVersion": "2015-01-01",
-            "name": "spokeDbDeployment",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-              "mode": "Incremental",
-              "templateLink": {
-                "uri": "[concat(variables('nestedFolder'), 'spokeDb.json')]",
+    },
+    "resources": [{
+        "apiVersion": "2015-01-01",
+        "name": "spokeDbDeployment",
+        "type": "Microsoft.Resources/deployments",
+        "properties": {
+            "mode": "Incremental",
+            "templateLink": {
+                "uri": "[variables('spokeTemplateUri')]",
                 "contentVersion": "1.0.0.0"
-              },
-              "parameters":{
-                  "spokeDbDTU": {"value": "[variables('spokeDbDTU')]"},
-                  "databaseCount": {"value": 2},
-                  "serverName": {"value": "sampleeqsvr"},
-                  "sqlDwDatabaseName": {"value": "sampleeqdw"},
-                  "serverLocation": {"value": "westus"},
-                  "administratorLogin": {"value": "cloudSA"},
-                  "administratorLoginPassword": {"value": "dogmat1C"},
-                  "elasticPoolName": {"value": "[variables('elasticPoolName')]"},
-                  "poolEdition":{"value": "PremiumRS"},
-                  "poolDtu":{"value": 125},
-                  "poolSize":{"value": 256000},
-                  "databaseDtuMin":{"value": 125}
-              }
-              
+            },
+            "parameters": {
+                "spokeDbDTU": {
+                    "value": "[variables('spokeDbDTU')]"
+                },
+                "databaseCount": {
+                    "value": 2
+                },
+                "serverName": {
+                    "value": "sampleeqsvr"
+                },
+                "sqlDwDatabaseName": {
+                    "value": "sampleeqdw"
+                },
+                "serverLocation": {
+                    "value": "westus"
+                },
+                "administratorLogin": {
+                    "value": "cloudSA"
+                },
+                "administratorLoginPassword": {
+                    "value": "dogmat1C"
+                },
+                "elasticPoolName": {
+                    "value": "[variables('elasticPoolName')]"
+                },
+                "poolEdition": {
+                    "value": "PremiumRS"
+                },
+                "poolDtu": {
+                    "value": 125
+                },
+                "poolSize": {
+                    "value": 256000
+                },
+                "databaseDtuMin": {
+                    "value": 125
+                }
             }
-            
-        }
-     ],
-    "outputs": { 
 
-     }
+        }
+
+    }],
+    "outputs": {
+
+    }
 }
