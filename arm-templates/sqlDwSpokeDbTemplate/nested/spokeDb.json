@@ -67,7 +67,7 @@
                     "[concat('Microsoft.Sql/servers/', parameters('serverName'), '/elasticpools/', parameters('elasticPoolName'))]"
                 ],
                 "location": "[parameters('serverLocation')]",
-                "name": "[concat(parameters('serverName'), '/',parameters('databaseName'))]",
+                "name": "[concat(parameters('serverName'), '/',parameters('databaseName'), 'n', copyIndex())]",
                 "properties": {
                     "collation": "[parameters('collation')]",
                     "elasticPoolName": "[parameters('elasticPoolName')]"
