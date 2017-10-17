@@ -82,7 +82,7 @@
     "outputs": {
         "spokeDatabases": {
             "type": "array",
-            "value": "spokeDbCopy"
+            "value": ["spokeDbCopy"]
         }
     }
 }
