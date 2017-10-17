@@ -1,0 +1,18 @@
+{
+  "bindings": [
+    {
+      "name": "resumeTimer",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "0 0 8 * * 1-5"
+    },
+    {
+      "type": "queue",
+      "name": "operationRequest",
+      "queueName": "operations-queue",
+      "connection": "AzureWebJobsStorage",
+      "direction": "out"
+    }
+  ],
+  "disabled": true
+}

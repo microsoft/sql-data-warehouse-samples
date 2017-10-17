@@ -1,0 +1,18 @@
+{
+  "bindings": [
+    {
+      "name": "scaleDownTimer",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "%ScaleDownTime%"
+    },
+    {
+      "type": "queue",
+      "name": "operationRequest",
+      "queueName": "operations-queue",
+      "connection": "AzureWebJobsStorage",
+      "direction": "out"
+    }
+  ],
+  "disabled": false
+}

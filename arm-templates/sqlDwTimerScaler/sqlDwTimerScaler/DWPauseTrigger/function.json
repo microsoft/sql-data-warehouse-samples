@@ -1,0 +1,18 @@
+{
+  "bindings": [
+    {
+      "name": "pauseTimer",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "0 30 18 * * 1-5"
+    },
+    {
+      "type": "queue",
+      "name": "operationRequest",
+      "queueName": "operations-queue",
+      "connection": "AzureWebJobsStorage",
+      "direction": "out"
+    }
+  ],
+  "disabled": true
+}

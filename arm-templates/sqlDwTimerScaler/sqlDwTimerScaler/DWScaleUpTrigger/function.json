@@ -1,0 +1,18 @@
+{
+  "bindings": [
+    {
+      "name": "scaleUpTimer",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "%ScaleUpTime%"
+    },
+    {
+      "type": "queue",
+      "name": "operationRequest",
+      "queueName": "operations-queue",
+      "connection": "AzureWebJobsStorage",
+      "direction": "out"
+    }
+  ],
+  "disabled": false
+}

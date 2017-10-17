@@ -1,0 +1,12 @@
+{
+  "bindings": [
+    {
+      "name": "operationRequest",
+      "type": "queueTrigger",
+      "direction": "in",
+      "queueName": "operations-queue",
+      "connection": "AzureWebJobsStorage"
+    }
+  ],
+  "disabled": false
+}
