@@ -80,9 +80,6 @@
         }
     ],
     "outputs": {
-        "spokeDatabases": {
-            "type": "array",
-            "value": ["spokeDbCopy"]
-        }
+        
     }
 }
