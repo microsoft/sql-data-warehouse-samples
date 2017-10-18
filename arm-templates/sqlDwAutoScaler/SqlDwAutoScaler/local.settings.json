@@ -3,10 +3,17 @@
   "Values": {
     "AzureWebJobsDashboard": "",
     "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=YourFunctionAppStorageAccount;AccountKey=YourAccountKey;",
+<<<<<<< HEAD
     "SqlDwResourceGroup": "",
     "SqlServerName": "edudatawh",
     "SqlDwName": "",
     "SqlDwLocation": "",
+=======
+    "SqlDwResourceGroup": "edudatastore",
+    "SqlServerName": "edudatawh",
+    "SqlDwName": "EducationDataWH",
+    "SqlDwLocation": "eastus",
+>>>>>>> 83ea36a02d6b0085211eccd1570b7d27b2bf75a1
     "DwuConfigFile": "dwuconfigs.json",
     "DwScaleLogsTable": "DwScaleLogs",
     "ScaleUpScheduleStartUtcTime": "16:30:00",
