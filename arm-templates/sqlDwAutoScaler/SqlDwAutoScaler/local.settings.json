@@ -1,0 +1,19 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsDashboard": "",
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=YourFunctionAppStorageAccount;AccountKey=YourAccountKey;",
+    "SqlDwResourceGroup": "",
+    "SqlServerName": "",
+    "SqlDwName": "",
+    "SqlDwLocation": "",
+    "DwuConfigFile": "dwuconfigs.json",
+    "DwScaleLogsTable": "DwScaleLogs",
+    "ScaleUpScheduleStartUtcTime": "16:30:00",
+    "ScaleUpScheduleEndUtcTime": "18:00:00",
+    "SubscriptionId": "Your subscription id",
+    "TenantId": "Your tenant id",
+    "ClientId": "Your Azure Active Directory App Id",
+    "ClientKey": "Your Azure Active Directory App Key"
+  }
+}

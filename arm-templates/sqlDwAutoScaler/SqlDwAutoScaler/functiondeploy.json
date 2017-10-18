@@ -1,0 +1,31 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": { 
+        "codePackageLocation":{
+            "type": "string"
+        },
+        "functionAppName": {
+            "type": "string"
+        }
+     },
+    "variables": {  },
+    "resources": [
+        {
+            "type": "Microsoft.Web/sites/extensions",
+            "name": "MSDeploy",
+            "apiVersion": "2015-08-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+              "displayName": "webdeploy"
+            },
+            "properties": {
+              "packageUri": "[parameters('codePackageLocation')]",
+              "dbType": "None",
+              "connectionString": ""
+            }
+            
+          }
+      ],
+    "outputs": {  }
+}
