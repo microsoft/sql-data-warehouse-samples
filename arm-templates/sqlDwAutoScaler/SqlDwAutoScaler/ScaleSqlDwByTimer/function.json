@@ -1,0 +1,13 @@
+{
+  "disabled": false,
+  "bindings": [
+    {
+      "name": "myTimer",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "0 30 16 * * *"
+    }
+  ],
+  "scriptFile": "..\\bin\\SqlDwAutoScaler.dll",
+  "entryPoint": "SqlDwAutoScaler.ScaleSqlDwByTimer.Run"
+}
