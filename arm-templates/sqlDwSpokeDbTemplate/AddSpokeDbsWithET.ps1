@@ -15,6 +15,8 @@ Param(
 
 workflow spokeDbSetup {
 
+inlineScript {
+
 $logicalServerAdminCredential = Get-AutomationPSCredential -Name logicalServerAdminCredential 
 
 if ($logicalServerAdminCredential -eq $null) 
@@ -25,10 +27,18 @@ if ($logicalServerAdminCredential -eq $null)
 $SqlUsername = $logicalServerAdminCredential.UserName 
 $SqlPass = $logicalServerAdminCredential.GetNetworkCredential().Password
 
+$SqlServer = $Using:SqlServer;
+$Datawarehouse = $Using:Datawarehouse;
+$SpokeDbBaseName = $Using:SpokeDbBaseName;
+$SpokeCount = $Using:SpokeCount;
+
 Write-Output $SqlServer
 Write-Output $Datawarehouse
 Write-Output $SpokeDbBaseName
 Write-Output $SpokeCount
+Write-Output $SqlUsername
+Write-Output $SqlPass
+
 
 $SqlServerPort = '1433' 
 
@@ -494,5 +504,5 @@ EXEC [meta].[SetupExternalTablesToDw] '$Datawarehouse'
 }
 
 
-
+}
 }
