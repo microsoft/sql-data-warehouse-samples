@@ -4,13 +4,13 @@
 #>
 Param(	
 	[Parameter(Mandatory= $true)]
-	[String]$SqlServer,
+	[String] $SqlServer,
 	[Parameter(Mandatory= $true)]
-	[String]$Datawarehouse,
+	[String] $Datawarehouse,
 	[Parameter(Mandatory= $true)]
-	[String]$SpokeDbBaseName,
+	[String] $SpokeDbBaseName,
 	[Parameter(Mandatory= $true)]
-	[int16]$SpokeCount
+	[int16] $SpokeCount
 )
 
 workflow spokeDbSetup {
@@ -26,6 +26,10 @@ if ($logicalServerAdminCredential -eq $null)
 $SqlUsername = $logicalServerAdminCredential.UserName 
 $SqlPass = $logicalServerAdminCredential.GetNetworkCredential().Password
 
+Write-Output $SqlServer
+Write-Output $Datawarehouse
+Write-Output $SpokeDbBaseName
+Write-Output $SpokeCount
 
 $SqlServerPort = '1433' 
 
