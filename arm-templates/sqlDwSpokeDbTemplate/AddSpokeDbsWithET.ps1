@@ -2,18 +2,18 @@
 	This PowerShell script was automatically converted to PowerShell Workflow so it can be run as a runbook.
 	Specific changes that have been made are marked with a comment starting with “Converter:”
 #>
-Param(	
-	[Parameter(Mandatory= $true)]
-	[String] $SqlServer,
-	[Parameter(Mandatory= $true)]
-	[String] $Datawarehouse,
-	[Parameter(Mandatory= $true)]
-	[String] $SpokeDbBaseName,
-	[Parameter(Mandatory= $true)]
-	[int16] $SpokeCount
-)
-
 workflow spokeDbSetup {
+	Param(	
+		[Parameter(Mandatory= $true)]
+		[String] $SqlServer,
+		[Parameter(Mandatory= $true)]
+		[String] $Datawarehouse,
+		[Parameter(Mandatory= $true)]
+		[String] $SpokeDbBaseName,
+		[Parameter(Mandatory= $true)]
+		[int16] $SpokeCount
+	)
+	
 
 inlineScript {
 
