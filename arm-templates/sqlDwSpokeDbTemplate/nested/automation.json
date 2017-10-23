@@ -86,7 +86,7 @@
                 }
             },
             {
-                "name": "[variables('runbookName')]",
+                "name": "[guid(resourceGroup().id)]",
                 "type": "jobs",
                 "apiVersion": "2015-01-01-preview",
                 "location": "westcentralus",
