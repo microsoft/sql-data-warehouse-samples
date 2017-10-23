@@ -15,12 +15,7 @@ workflow spokeDbSetup {
 		[int16] $SpokeCount
 	)
 
-Write-Output "SqlServer outside inline" $SqlServer;
-Write-Output "Datawarehouse outside inline" $Datawarehouse
-Write-Output "SpokeDbBaseName outside inline" $SpokeDbBaseName
-Write-Output "SpokeCount outside inline" $SpokeCount
-
-inlineScript {
+	inlineScript {
 
 $logicalServerAdminCredential = Get-AutomationPSCredential -Name logicalServerAdminCredential 
 
@@ -36,15 +31,6 @@ $SqlServer = $Using:SqlServer;
 $Datawarehouse = $Using:Datawarehouse;
 $SpokeDbBaseName = $Using:SpokeDbBaseName;
 $SpokeCount = $Using:SpokeCount;
-
-Write-Output $SqlServer
-Write-Output $Datawarehouse
-Write-Output $SpokeDbBaseName
-Write-Output $SpokeCount
-Write-Output $SqlUsername
-Write-Output $SqlPass
-
-
 $SqlServerPort = '1433' 
 
 # Define the connection to the logical server master database 
