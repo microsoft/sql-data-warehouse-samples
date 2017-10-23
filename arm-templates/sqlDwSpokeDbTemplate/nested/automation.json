@@ -102,18 +102,10 @@
                     "jobId":{
                         "value": "[guid(subscription().subscriptionId)]"
                     },"parameters":{
-                        "SqlServer": {
-                            "value": "[parameters('logicalServerName')]"
-                        },
-                        "Datawarehouse": {
-                            "value": "[parameters('datawarehouseName')]"
-                        },
-                        "SpokeDbBaseName": {
-                            "value": "[parameters('databaseBaseName')]"
-                        },
-                        "SpokeCount": {
-                            "value": "[parameters('databaseCount')]"
-                        }
+                        "SqlServer":  "[parameters('logicalServerName')]",
+                        "Datawarehouse": "[parameters('datawarehouseName')]",
+                        "SpokeDbBaseName":  "[parameters('databaseBaseName')]",
+                        "SpokeCount":  "[parameters('databaseCount')]"
                     }
                 }
                 
