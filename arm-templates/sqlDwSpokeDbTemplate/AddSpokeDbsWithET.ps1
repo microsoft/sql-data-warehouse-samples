@@ -12,10 +12,10 @@ workflow spokeDbSetup {
 		[Parameter(Mandatory= $true)]
 		[String] $SpokeDbBaseName,
 		[Parameter(Mandatory= $true)]
-		[int16] $SpokeCount
+		[int] $SpokeCount
 	)
 
-	inlineScript {
+inlineScript {
 
 $logicalServerAdminCredential = Get-AutomationPSCredential -Name logicalServerAdminCredential 
 
