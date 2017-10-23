@@ -78,8 +78,9 @@
                     "runbookType": "Script",
                     "logProgress": "false",
                     "logVerbose": "false",
+                    "description": "is this the problems?",
                     "publishContentLink": {
-                        "uri": "[parameters('scriptUri')]",
+                        "uri": "https://raw.githubusercontent.com/hirokib/sql-data-warehouse-samples/master/arm-templates/sqlDwSpokeDbTemplate/AddSpokeDbsWithET.ps1",
                         "version": "1.0.0.0"
                     }
                 }
