@@ -11,12 +11,11 @@
             "defaultValue": "sampleeqsvr"
         },
         "serverLocation": {
-            "type": "string",
-            "defaultValue": "westus"
+            "type": "string"
         },
         "elasticPoolName": {
             "type": "string",
-            "defaultValue": "[concat('Pool', uniquestring(resourceGroup().id))]"
+            "defaultValue": "[concat('pool', uniquestring(resourceGroup().id))]"
         },
         "poolEdition": {
             "type": "string",
@@ -29,6 +28,9 @@
         "poolSize": {
             "type": "int",
             "defaultValue": 256000
+        },
+        "databaseName":{
+            "type": "string"
         },
         "databaseDtuMin": {
             "type": "int",
@@ -43,8 +45,7 @@
             "defaultValue": 2
         }
     },
-    "resources": [
-        {
+    "resources": [{
             "apiVersion": "2014-04-01",
             "location": "[parameters('serverLocation')]",
             "name": "[concat(parameters('logicalServerName'), '/', parameters('elasticPoolName'))]",
@@ -61,7 +62,7 @@
             "type": "Microsoft.Sql/servers/databases",
             "apiVersion": "2014-04-01-preview",
             "location": "[parameters('serverLocation')]",
-            "name": "[concat(parameters('logicalServerName'), '/', 'spoke', uniquestring(resourceGroup().id), 'dbn', copyIndex())]",
+            "name": "[concat(parameters('logicalServerName'), '/', parameters('databaseName'), copyIndex())]",
             "dependsOn": [
                 "[concat('Microsoft.Sql/servers/', parameters('logicalServerName'), '/elasticpools/', parameters('elasticPoolName'))]"
             ],
@@ -76,6 +77,6 @@
         }
     ],
     "outputs": {
-        
+
     }
 }
