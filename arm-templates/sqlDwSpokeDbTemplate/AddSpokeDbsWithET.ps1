@@ -15,7 +15,6 @@ Param(
 
 workflow spokeDbSetup {
 
-inlineScript {
 $logicalServerAdminCredential = Get-AutomationPSCredential -Name logicalServerAdminCredential 
 
 if ($logicalServerAdminCredential -eq $null) 
@@ -495,5 +494,5 @@ EXEC [meta].[SetupExternalTablesToDw] '$Datawarehouse'
 }
 
 
-}
+
 }
