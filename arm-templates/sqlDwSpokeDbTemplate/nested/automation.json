@@ -84,10 +84,9 @@
                         "version": "1.0.0.0"
                     }
                 }
-            }
-            ,
+            },
             {
-                "name": "[guid(subscription().subscriptionId)]",
+                "name": "SpokeDbMetadataSetup",
                 "type": "jobs",
                 "apiVersion": "2015-01-01-preview",
                 "location": "westcentralus",
@@ -100,16 +99,15 @@
                     "runbook": {
                         "name": "[variables('runbookName')]"
                     },
-                    "jobId":{
-                        "value": "[guid(subscription().subscriptionId)]"
-                    },"parameters":{
-                        "SqlServer":  "[parameters('logicalServerName')]",
+                    "jobId": "[guid(subscription().subscriptionId)]",
+                    "parameters": {
+                        "SqlServer": "[parameters('logicalServerName')]",
                         "Datawarehouse": "[parameters('datawarehouseName')]",
-                        "SpokeDbBaseName":  "[parameters('databaseBaseName')]",
-                        "SpokeCount":  "[parameters('databaseCount')]"
+                        "SpokeDbBaseName": "[parameters('databaseBaseName')]",
+                        "SpokeCount": "[parameters('databaseCount')]"
                     }
                 }
-                
+
             }
         ]
     }],

@@ -8,17 +8,17 @@ if ($logicalServerAdminCredential -eq $null)
 $SqlUsername = $logicalServerAdminCredential.UserName 
 $SqlPass = $logicalServerAdminCredential.GetNetworkCredential().Password
 
-Param
-(	
-	[Parameter (Mandatory= $true)]
+Param(	
+	[Parameter(Mandatory= $true)]
 	[String] $SqlServer,
-	[Parameter (Mandatory= $true)]
+	[Parameter(Mandatory= $true)]
 	[String] $Datawarehouse,
-	[Parameter (Mandatory= $true)]
+	[Parameter(Mandatory= $true)]
 	[String] $SpokeDbBaseName,
-	[Parameter (Mandatory= $true)]
+	[Parameter(Mandatory= $true)]
 	[int16] $SpokeCount
 )
+
 $SqlServerPort = '1433' 
 
 # Define the connection to the logical server master database 
