@@ -36,6 +36,10 @@
         "databaseBaseName": {
             "type": "string",
             "defaultValue": ["concat('spoke', uniquestring(resourceGroup().id), 'dbn')"]
+        },
+        "guid": {
+            "type":"string",
+            "defaultValue": "[guid(resourceGroup().id)]"
         }
     },
     "variables": {
@@ -86,7 +90,7 @@
                 }
             },
             {
-                "name": "[guid(resourceGroup().id)]",
+                "name": "[parameters('guid')]",
                 "type": "jobs",
                 "apiVersion": "2015-01-01-preview",
                 "location": "westcentralus",
