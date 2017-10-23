@@ -3,6 +3,7 @@
 	Specific changes that have been made are marked with a comment starting with “Converter:”
 #>
 workflow spokeDbSetup {
+
 	Param(	
 		[Parameter(Mandatory= $true)]
 		[String] $SqlServer,
@@ -13,7 +14,11 @@ workflow spokeDbSetup {
 		[Parameter(Mandatory= $true)]
 		[int16] $SpokeCount
 	)
-	
+
+Write-Output "SqlServer outside inline" $SqlServer;
+Write-Output "Datawarehouse outside inline" $Datawarehouse
+Write-Output "SpokeDbBaseName outside inline" $SpokeDbBaseName
+Write-Output "SpokeCount outside inline" $SpokeCount
 
 inlineScript {
 
@@ -222,7 +227,7 @@ SELECT	[TableName]
 ,		[SchemaName]
 ,		[DDL]
 FROM [meta].[DatamartExternalTableDefinitions]
-WHERE DataMartUser = SUSER_SNAME();
+WHERE DataMartUser = SUSER_SNAME();'
 
 DECLARE @nbr_statements INT = (SELECT COUNT(*) FROM [meta].[DatamartExternalTableDefinitions])
 ,       @i INT = 1
@@ -237,8 +242,8 @@ DECLARE @tableName VARCHAR(1000) = (SELECT tableName FROM [meta].[DatamartExtern
 DECLARE @schemaName VARCHAR(1000) = (SELECT schemaName FROM [meta].[DatamartExternalTableDefinitions] WHERE Sequence = @i);
 DECLARE @externalDataSourceName VARCHAR(1000) = (SELECT [DataSource] FROM [meta].[DatamartExternalTableDefinitions] WHERE Sequence = @i);
 DECLARE @datamartUser VARCHAR(1000) = (SELECT [DataMartUser] FROM [meta].[DatamartExternalTableDefinitions] WHERE Sequence = @i);
-DECLARE @grantCommand VARCHAR(100) = 'GRANT SELECT ON OBJECT::['+@schemaName+'].['+@tableName+'] TO ['+@datamartUser+'];';
-DECLARE @grantViewCommand VARCHAR(100) = 'GRANT SELECT ON OBJECT::[meta].[DataMartTableDefinitions] TO '+@datamartUser+''';
+DECLARE @grantCommand NVARCHAR(100) = 'GRANT SELECT ON OBJECT::['+@schemaName+'].['+@tableName+'] TO ['+@datamartUser+'];';
+DECLARE @grantViewCommand NVARCHAR(100) = 'GRANT SELECT ON OBJECT::[meta].[RemoteTableDefinitionView] TO '+@datamartUser+'';
 EXEC    [meta].[createExternalTableFromDw] @databaseName, @schemaName, @tableName, @schemaName, @externalDataSourceName, @DDL OUTPUT;
 UPDATE  [meta].[DatamartExternalTableDefinitions] SET DDL = @DDL WHERE Sequence = @i;
 EXEC	sp_executesql @grantCommand;
@@ -268,94 +273,94 @@ IF OBJECT_ID('tempdb..#TablesByUserSchema') IS NOT NULL DROP TABLE #TablesByUser
 
 IF @objectId IS NOT NULL OR @schemaName IS NOT NULL
 BEGIN
--- If objectId is set, just add the unique object to datamart user. ObjectId always
--- takes precedence over schema
-IF (@objectId IS NOT NULL)
-BEGIN
-	SELECT		@userName		AS [DataMartUser]
-	,			@dataSource		AS [DataSource]
-	,			tbl.[object_id]	AS [ObjectId]	
-	,			sch.[name]		AS [SchemaName]
-	,			tbl.[name]		AS [TableName]	
-	INTO		#TablesByUserSchema
-	FROM		sys.tables tbl
-	JOIN		sys.schemas sch		ON tbl.[schema_id] = sch.[schema_id]
-	WHERE		tbl.[object_id]		= @objectId
-	AND			tbl.[is_external]	= 0
-END
--- If schemaName is set, add all tables in the schema to datamart user
--- but not objectId
-ELSE 
-BEGIN
-	SELECT 
-		@userName		AS [DataMartUser]
-	,	@dataSource		AS [DataSource]
-	,	tbl.[object_id]	AS [ObjectId]	
-	,	sch.[name]		AS [SchemaName]
-	,	tbl.[name]		AS [TableName]	
-	INTO #TablesByUserSchema
-	FROM
-	sys.tables tbl
-	JOIN
-	sys.schemas sch
-	ON tbl.[schema_id] = sch.[schema_id]
-	WHERE sch.[name] = @schemaName
-	AND tbl.[is_external] = 0
-END
+	-- If objectId is set, just add the unique object to datamart user. ObjectId always
+	-- takes precedence over schema
+	IF (@objectId IS NOT NULL)
+	BEGIN
+		 SELECT  @userName  AS [DataMartUser]
+		 ,   @dataSource  AS [DataSource]
+		 ,   tbl.[object_id] AS [ObjectId] 
+		 ,   sch.[name]  AS [SchemaName]
+		 ,   tbl.[name]  AS [TableName] 
+		 INTO  #TablesByUserSchema
+		 FROM  sys.tables tbl
+		 JOIN  sys.schemas sch  ON tbl.[schema_id] = sch.[schema_id]
+		 WHERE  tbl.[object_id]  = @objectId
+		 AND	tbl.[is_external] = 0
+		 AND	sch.[name] != 'meta' 
+	END
+	-- If schemaName is set, add all tables in the schema to datamart user
+	-- but not objectId
+	ELSE 
+	BEGIN
+		 SELECT 
+		  @userName  AS [DataMartUser]
+		 , @dataSource  AS [DataSource]
+		 , tbl.[object_id] AS [ObjectId] 
+		 , sch.[name]  AS [SchemaName]
+		 , tbl.[name]  AS [TableName] 
+		 INTO #TablesByUserSchema
+		 FROM sys.tables tbl
+		 JOIN sys.schemas sch
+		 ON tbl.[schema_id] = sch.[schema_id]
+		 WHERE	sch.[name] = @schemaName
+		 AND 	tbl.[is_external] = 0
+		 AND	sch.[name] != 'meta' 
+	END
 END
 -- If no optional parameters given, add all user tables to datamart user
 ELSE
 BEGIN
-SELECT 
-	@userName		AS [DataMartUser]
-,	@dataSource		AS [DataSource]
-,	tbl.[object_id]	AS [ObjectId]	
-,	sch.[name]		AS [SchemaName]
-,	tbl.[name]		AS [TableName]	
-INTO #TablesByUserSchema
-FROM
-sys.tables tbl
-JOIN
-sys.schemas sch
-ON tbl.[schema_id] = sch.[schema_id]
-AND tbl.[is_external] = 0
+	SELECT 
+	 @userName  AS [DataMartUser]
+	, @dataSource  AS [DataSource]
+	, tbl.[object_id] AS [ObjectId] 
+	, sch.[name]  AS [SchemaName]
+	, tbl.[name]  AS [TableName] 
+	INTO #TablesByUserSchema
+	FROM	sys.tables tbl
+	JOIN	sys.schemas sch
+	ON tbl.[schema_id] = sch.[schema_id]
+	AND tbl.[is_external] = 0
+	AND	sch.[name] != 'meta' 
 END
 
 IF NOT EXISTS ( SELECT * FROM sys.tables WHERE object_id = OBJECT_ID('meta.DatamartControlTable') )
 BEGIN
-CREATE TABLE meta.[DatamartControlTable]
-WITH
-(
-	HEAP,
-	DISTRIBUTION=ROUND_ROBIN
-)
-AS SELECT * FROM #TablesByUserSchema
+	CREATE TABLE meta.[DatamartControlTable]
+	WITH
+	(
+	 HEAP,
+	 DISTRIBUTION=ROUND_ROBIN
+	)
+	AS SELECT * FROM #TablesByUserSchema
 END
 ELSE
 BEGIN
-CREATE TABLE meta.[DatamartControlTable_new]
-WITH
-(
-	HEAP
-,	DISTRIBUTION=ROUND_ROBIN
-)
-AS
-SELECT
-	*
-FROM #TablesByUserSchema t
-WHERE NOT EXISTS
-(
-	SELECT * 
-	FROM meta.[DatamartControlTable] c 
-	WHERE t.[DataMartUser] = c.[DataMartUser] AND t.[ObjectId] = c.[ObjectId]
-)
-UNION ALL
-SELECT * FROM meta.[DatamartControlTable]
+	CREATE TABLE meta.[DatamartControlTable_new]
+	WITH
+	(
+	 HEAP
+	, DISTRIBUTION=ROUND_ROBIN
+	)
+	AS
+	SELECT
+	 *
+	FROM #TablesByUserSchema t
+	WHERE NOT EXISTS
+	(
+	 SELECT * 
+	 FROM meta.[DatamartControlTable] c 
+	 WHERE t.[DataMartUser] = c.[DataMartUser] AND t.[ObjectId] = c.[ObjectId]
+	)
+	UNION ALL
+	SELECT * FROM meta.[DatamartControlTable]
 
-RENAME OBJECT meta.[DatamartControlTable]	 TO [DatamartControlTable_old];
-RENAME OBJECT meta.[DatamartControlTable_new] TO [DatamartControlTable];
+	RENAME OBJECT meta.[DatamartControlTable]  TO [DatamartControlTable_old];
+	RENAME OBJECT meta.[DatamartControlTable_new] TO [DatamartControlTable];
 
-DROP TABLE [meta].[DatamartControlTable_old];
+	DROP TABLE [meta].[DatamartControlTable_old];
+	DROP TABLE #TablesByUserSchema;
 
 END
 
@@ -476,6 +481,7 @@ EXEC [meta].[AddObjectsForDatamartUserToControlTable] '$SpokeDbBaseName$i', '$Da
 	$Ds=New-Object system.Data.DataSet 
 	[void]$Da.fill($Ds)
 }
+
 $GenerateDatamartExternalTableDefinitionsAndGrantSelect=new-object system.Data.SqlClient.SqlCommand("
 EXEC [meta].[GenerateDatamartExternalTableDefinitionsAndGrantSelect]
 ", $DwConn)
