@@ -99,7 +99,6 @@
                     "runbook": {
                         "name": "[variables('runbookName')]"
                     },
-                    "jobId": "[guid(subscription().subscriptionId)]",
                     "parameters": {
                         "SqlServer": "[parameters('logicalServerName')]",
                         "Datawarehouse": "[parameters('datawarehouseName')]",
