@@ -29,27 +29,6 @@
                 "description": "The number of databases to deploy based on a schema setting here in the data warehouse instance. If you already have some number of spoke databases, ensure that you choose N + the existing number of databases."
             }
         },
-        "spokeSchema": {
-            "type": "string",
-            "defaultValue": "all",
-            "metadata": {
-                "description": "The schema for which definitions will be created in the cachedDbs. If no value is entered, all user schemas will be added as external table definitions in the cache database instances."
-            }
-        },
-        "autoUserName": {
-            "type": "string",
-            "metadata": {
-                "description": "The username for the Azure Automation credential."
-            },
-            "defaultValue": "autoUser"
-        },
-        "autoPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The password for the Azure Automation credential."
-            },
-            "defaultValue": "autoP@ssword!"
-        },
         "deploymentGuid": {
             "type": "string"
         }
