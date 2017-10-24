@@ -197,26 +197,26 @@ workflow spokeDbSetup {
 	WITH
 	( 
 	DISTRIBUTION = ROUND_ROBIN
-	,	HEAP
+	, HEAP
 	)
 	AS
 	SELECT  
 	ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS Sequence
-	,	[DataMartUser]
-	,	[DataSource]
-	,	[ObjectId]
-	,	[TableName]	
-	,	[SchemaName]
-	,	CAST('' AS VARCHAR(max)) AS [DDL]
+	, [DataMartUser]
+	, [DataSource]
+	, [ObjectId]
+	, [TableName] 
+	, [SchemaName]
+	, CAST('' AS VARCHAR(max)) AS [DDL]
 	FROM
 	[meta].[DatamartControlTable]
 	
 	IF NOT EXISTS (SELECT * FROM sys.objects obj WHERE obj.[name] = 'RemoteTableDefinitionView' and obj.[type] = 'V')
 	EXEC sp_executesql N'
 	CREATE VIEW [meta].[RemoteTableDefinitionView] AS 
-	SELECT	[TableName]
-	,		[SchemaName]
-	,		[DDL]
+	SELECT [TableName]
+	,  [SchemaName]
+	,  [DDL]
 	FROM [meta].[DatamartExternalTableDefinitions]
 	WHERE DataMartUser = SUSER_SNAME();'
 	
@@ -237,8 +237,8 @@ workflow spokeDbSetup {
 	DECLARE @grantViewCommand NVARCHAR(100) = 'GRANT SELECT ON OBJECT::[meta].[RemoteTableDefinitionView] TO '+@datamartUser+'';
 	EXEC    [meta].[createExternalTableFromDw] @databaseName, @schemaName, @tableName, @schemaName, @externalDataSourceName, @DDL OUTPUT;
 	UPDATE  [meta].[DatamartExternalTableDefinitions] SET DDL = @DDL WHERE Sequence = @i;
-	EXEC	sp_executesql @grantCommand;
-	EXEC	sp_executesql @grantViewCommand;
+	EXEC sp_executesql @grantCommand;
+	EXEC sp_executesql @grantViewCommand;
 	SET     @i +=1;
 	END
 	
