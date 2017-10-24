@@ -1,0 +1,152 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "logicalServerName": {
+            "type": "string",
+            "metadata": {
+                "description": "The server name of your pre-existing SQL Data Warehouse."
+            }
+        },
+        "logicalServerLocation": {
+            "type": "string"
+        },
+        "logicalServerAdminUserName": {
+            "type": "string"
+        },
+        "logicalServerAdminPassword": {
+            "type": "securestring"
+        },
+        "sqlDwDatabaseName": {
+            "type": "string",
+            "metadata": {
+                "description": "The database name of your pre-existing SQL Data Warehouse."
+            }
+        },
+        "numSpokeDb": {
+            "type": "int",
+            "metadata": {
+                "description": "The number of databases to deploy based on a schema setting here in the data warehouse instance. If you already have some number of spoke databases, ensure that you choose N + the existing number of databases."
+            }
+        },
+        "spokeSchema": {
+            "type": "string",
+            "defaultValue": "all",
+            "metadata": {
+                "description": "The schema for which definitions will be created in the cachedDbs. If no value is entered, all user schemas will be added as external table definitions in the cache database instances."
+            }
+        },
+        "autoUserName": {
+            "type": "string",
+            "metadata": {
+                "description": "The username for the Azure Automation credential."
+            },
+            "defaultValue": "autoUser"
+        },
+        "autoPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The password for the Azure Automation credential."
+            },
+            "defaultValue": "autoP@ssword!"
+        },
+        "deploymentGuid": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "spokeTemplateUri": "https://raw.githubusercontent.com/hirokib/sql-data-warehouse-samples/master/arm-templates/sqlDwSpokeDbTemplate/nested/spokeDb.json",
+        "automationTemplateUri": "https://raw.githubusercontent.com/hirokib/sql-data-warehouse-samples/a27c62e/arm-templates/sqlDwSpokeDbTemplate/nested/automation.json",
+        "elasticPoolName": "[concat('pool', uniquestring(resourceGroup().id))]",
+        "spokeDbBaseName": "[concat('spoke', uniquestring(resourceGroup().id), 'dbn')]"
+    },
+    "resources": [{
+            "apiVersion": "2015-01-01",
+            "name": "spokeDbDeployment",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('spokeTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "databaseName": {
+                        "value": "[variables('spokeDbBaseName')]"
+                    },
+                    "databaseCount": {
+                        "value": "[parameters('numSpokeDb')]"
+                    },
+                    "logicalServerName": {
+                        "value": "[parameters('logicalServerName')]"
+                    },
+                    "serverLocation": {
+                        "value": "[parameters('logicalServerLocation')]"
+                    },
+                    "poolEdition": {
+                        "value": "PremiumRS"
+                    },
+                    "poolDtu": {
+                        "value": 1000
+                    },
+                    "poolSize": {
+                        "value": 256000
+                    },
+                    "databaseDtuMin": {
+                        "value": 0
+                    },
+                    "databaseDtuMax": {
+                        "value": 125
+                    },
+                    "elasticPoolName": {
+                        "value": "[variables('elasticPoolName')]"
+                    }
+                }
+
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "automationDeployment",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('automationTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "logicalServerName": {
+                        "value": "[parameters('logicalServerName')]"
+                    },
+                    "serverAdminUserName": {
+                        "value": "[parameters('logicalServerAdminUserName')]"
+                    },
+                    "serverAdminPassword": {
+                        "value": "[parameters('logicalServerAdminPassword')]"
+                    },
+                    "datawarehouseName": {
+                        "value": "[parameters('sqlDwDatabaseName')]"
+                    },
+                    "databaseCount": {
+                        "value": "[parameters('numSpokeDb')]"
+                    },
+                    "databaseBaseName": {
+                        "value": "[variables('spokeDbBaseName')]"
+                    },
+                    "guid": {
+                        "value": "[parameters('deploymentGuid')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "spokeDbDeployment"
+            ]
+        }
+
+
+    ],
+    "outputs": {
+
+    }
+}
