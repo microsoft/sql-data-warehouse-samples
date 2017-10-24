@@ -108,6 +108,7 @@
                         "Datawarehouse": "[parameters('datawarehouseName')]",
                         "SpokeDbBaseName": "[parameters('databaseBaseName')]",
                         "SpokeCount": "[parameters('databaseCount')]"
+                        
                     }
                 }
 
