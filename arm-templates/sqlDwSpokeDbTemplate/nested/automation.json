@@ -104,10 +104,10 @@
                         "name": "[variables('runbookName')]"
                     },
                     "parameters": {
-                        "$SqlServer": "[parameters('logicalServerName')]",
-                        "$Datawarehouse": "[parameters('datawarehouseName')]",
-                        "$SpokeDbBaseName": "[parameters('databaseBaseName')]",
-                        "$SpokeCount": "[parameters('databaseCount')]"
+                        "SqlServer": "[parameters('logicalServerName')]",
+                        "Datawarehouse": "[parameters('datawarehouseName')]",
+                        "SpokeDbBaseName": "[parameters('databaseBaseName')]",
+                        "SpokeCount": "[parameters('databaseCount')]"
                     }
                 }
 
