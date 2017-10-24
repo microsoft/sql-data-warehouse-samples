@@ -145,36 +145,36 @@ workflow spokeDbSetup {
 	
 	WHILE @columnDefinition IS NOT NULL
 	BEGIN
-		  IF @columnOrdinal > 1
-				 SET @columnList = @columnList + ',' + CHAR(13)+CHAR(10) + '   ';
+	   IF @columnOrdinal > 1
+		SET @columnList = @columnList + ',' + CHAR(13)+CHAR(10) + '   ';
 	
-		  IF @columnOrdinal > 0
-				 SET @columnList = @columnList + @columnDefinition;
+	   IF @columnOrdinal > 0
+		SET @columnList = @columnList + @columnDefinition;
 	
-		  SET @columnOrdinal = @columnOrdinal + 1;
+	   SET @columnOrdinal = @columnOrdinal + 1;
 	
-		  SET @columnDefinition = (SELECT '[' + [COLUMN_NAME] + '] [' + [DATA_TYPE] + ']' 
-																 + CASE WHEN [DATA_TYPE] LIKE '%char%' THEN ISNULL('(' + CAST([CHARACTER_MAXIMUM_LENGTH] AS VARCHAR(10)) + ')','') ELSE '' END
-																 + CASE WHEN [DATA_TYPE] LIKE '%binary%' THEN ISNULL('(' + CAST([CHARACTER_MAXIMUM_LENGTH] AS VARCHAR(10)) + ')','') ELSE '' END
-																 + CASE WHEN [DATA_TYPE] LIKE '%decimal%' THEN ISNULL('(' + CAST([NUMERIC_PRECISION] AS VARCHAR(10)) + ', ' + CAST([NUMERIC_SCALE] AS VARCHAR(10)) + ')','') ELSE '' END
-																 + CASE WHEN [DATA_TYPE] LIKE '%numeric%' THEN ISNULL('(' + CAST([NUMERIC_PRECISION] AS VARCHAR(10)) + ', ' + CAST([NUMERIC_SCALE] AS VARCHAR(10)) + ')','') ELSE '' END
-																 + CASE WHEN [DATA_TYPE] in ('datetime2','datetimeoffset') THEN ISNULL('(' + CAST([DATETIME_PRECISION] AS VARCHAR(10)) + ')','') ELSE '' END
-																 + CASE WHEN [IS_NULLABLE] = 'YES' THEN ' NULL' ELSE ' NOT NULL' END
-												   FROM INFORMATION_SCHEMA.COLUMNS
-												   WHERE [TABLE_SCHEMA] = @schemaName
-												   AND [TABLE_NAME] = @tableName
-												   AND [ORDINAL_POSITION] = @columnOrdinal);
+	   SET @columnDefinition = (SELECT '[' + [COLUMN_NAME] + '] [' + [DATA_TYPE] + ']' 
+					+ CASE WHEN [DATA_TYPE] LIKE '%char%' THEN CASE WHEN [CHARACTER_MAXIMUM_LENGTH] = -1 THEN '(MAX)' ELSE ISNULL('(' + CAST([CHARACTER_MAXIMUM_LENGTH] AS VARCHAR(10)) + ')','') END ELSE '' END
+					+ CASE WHEN [DATA_TYPE] LIKE '%binary%' THEN CASE WHEN [CHARACTER_MAXIMUM_LENGTH] = -1 THEN '(MAX)' ELSE ISNULL('(' + CAST([CHARACTER_MAXIMUM_LENGTH] AS VARCHAR(10)) + ')','') END ELSE '' END
+					+ CASE WHEN [DATA_TYPE] LIKE '%decimal%' THEN ISNULL('(' + CAST([NUMERIC_PRECISION] AS VARCHAR(10)) + ', ' + CAST([NUMERIC_SCALE] AS VARCHAR(10)) + ')','') ELSE '' END
+					+ CASE WHEN [DATA_TYPE] LIKE '%numeric%' THEN ISNULL('(' + CAST([NUMERIC_PRECISION] AS VARCHAR(10)) + ', ' + CAST([NUMERIC_SCALE] AS VARCHAR(10)) + ')','') ELSE '' END
+					+ CASE WHEN [DATA_TYPE] in ('datetime2','datetimeoffset') THEN ISNULL('(' + CAST([DATETIME_PRECISION] AS VARCHAR(10)) + ')','') ELSE '' END
+					+ CASE WHEN [IS_NULLABLE] = 'YES' THEN ' NULL' ELSE ' NOT NULL' END
+				  FROM INFORMATION_SCHEMA.COLUMNS
+				  WHERE [TABLE_SCHEMA] = @schemaName
+				  AND [TABLE_NAME] = @tableName
+				  AND [ORDINAL_POSITION] = @columnOrdinal);
 	END
 	SET @columnList = @columnList +  + CHAR(13)+CHAR(10) + ')';     
 	
 	--> Construct the entire sql command by combining the individual clauses
 	SET @sqlCmd = @createClause
-							  + ' ' + @columnList
-							  + ' WITH ('  + CHAR(13)+CHAR(10) +'DATA_SOURCE = ' + @externalDataSource
-							  + ', ' + CHAR(13)+CHAR(10) +'SCHEMA_NAME  = N' + '''' +  @schemaName + ''''
-							  + ', ' + CHAR(13)+CHAR(10) +'OBJECT_NAME  = N' + '''' + @tableName + ''''
-							  + CHAR(13)+CHAR(10) + ')'
-							  ;
+			+ ' ' + @columnList
+			+ ' WITH ('  + CHAR(13)+CHAR(10) +'DATA_SOURCE = ' + @externalDataSource
+			+ ', ' + CHAR(13)+CHAR(10) +'SCHEMA_NAME  = N' + '''' +  @schemaName + ''''
+			+ ', ' + CHAR(13)+CHAR(10) +'OBJECT_NAME  = N' + '''' + @tableName + ''''
+			+ CHAR(13)+CHAR(10) + ')'
+			;
 	END
 	
 	", $DwConn)
@@ -402,40 +402,40 @@ workflow spokeDbSetup {
 	BEGIN
 	IF NOT EXISTS (SELECT * FROM sys.schemas sch WHERE sch.[name] = @externalTableSource)
 	BEGIN
-		DECLARE @createSchemaCmd NVARCHAR(100) = N'CREATE SCHEMA [' + @externalTableSource + ']';
-		EXEC sp_executesql @createSchemaCmd;
+	 DECLARE @createSchemaCmd NVARCHAR(100) = N'CREATE SCHEMA [' + @externalTableSource + ']';
+	 EXEC sp_executesql @createSchemaCmd;
 	END
-		
-	IF NOT EXISTS (	SELECT * 
-					FROM	sys.external_tables et
-					JOIN	sys.schemas sch
-					ON		et.[schema_id] = sch.[schema_id]
-					AND		et.[name] = 'RemoteTableDefinitionView' )
+	 
+	IF NOT EXISTS ( SELECT * 
+		FROM sys.external_tables et
+		JOIN sys.schemas sch
+		ON  et.[schema_id] = sch.[schema_id]
+		AND  et.[name] = 'RemoteTableDefinitionView' )
 	BEGIN
 	DECLARE @createRemoteTableDefinitionViewCmd NVARCHAR(400) = 
 	'
 	CREATE EXTERNAL TABLE [meta].[RemoteTableDefinitionView]
 	(
-		[TableName]		NVARCHAR(128) NOT NULL
-	,	[SchemaName]	NVARCHAR(128) NOT NULL
-	,	[DDL]			VARCHAR(MAX)  NULL
+	 [TableName]  NVARCHAR(128) NOT NULL
+	, [SchemaName] NVARCHAR(128) NOT NULL
+	, [DDL]   VARCHAR(MAX)  NULL
 	)
 	WITH
 	(
-		DATA_SOURCE = '+@externalTableSource+'
-	,	SCHEMA_NAME = ''meta''
-	,	OBJECT_NAME = ''RemoteTableDefinitionView''
+	 DATA_SOURCE = '+@externalTableSource+'
+	, SCHEMA_NAME = ''meta''
+	, OBJECT_NAME = ''RemoteTableDefinitionView''
 	)
 	'
 	EXEC sp_executesql @createRemoteTableDefinitionViewCmd;
 	END
 	
 	SELECT ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS Sequence
-	,	   [TableName]	
-	,	   [SchemaName]
-	,	   [DDL]		
-	INTO	#RemoteTableDefinitions
-	FROM	[meta].[RemoteTableDefinitionView]
+	,    [TableName] 
+	,    [SchemaName]
+	,    [DDL]  
+	INTO #RemoteTableDefinitions
+	FROM [meta].[RemoteTableDefinitionView]
 	
 	DECLARE @nbr_statements INT = (SELECT COUNT(*) FROM #RemoteTableDefinitions)
 	,       @i INT = 1
@@ -443,9 +443,19 @@ workflow spokeDbSetup {
 	
 	WHILE   @i <= @nbr_statements
 	BEGIN
-		DECLARE @cmd NVARCHAR(MAX) = (SELECT [DDL] FROM #RemoteTableDefinitions WHERE Sequence = @i); 
-		EXEC sp_executesql @cmd
-		SET     @i +=1;
+	
+	 DECLARE @cmd NVARCHAR(MAX) = (SELECT [DDL] FROM #RemoteTableDefinitions WHERE Sequence = @i); 
+	 DECLARE @tableName VARCHAR(100) = (SELECT [TableName] FROM #RemoteTableDefinitions WHERE Sequence = @i); 
+	 DECLARE @schemaName VARCHAR(100) = (SELECT [SchemaName] FROM #RemoteTableDefinitions WHERE Sequence = @i); 
+	 DECLARE @dropCmd NVARCHAR(MAX) = '
+	 IF EXISTS (SELECT * FROM sys.external_tables et JOIN sys.schemas sch ON et.[schema_id] = sch.[schema_id] WHERE et.[name] = '''+@schemaName+'_'+@tableName+''' AND sch.[name] = '''+@externalTableSource+''') 
+	 BEGIN
+		 DROP EXTERNAL TABLE ['+@externalTableSource+'].['+@schemaName+'_'+@tableName+']
+	 END';
+	
+	 EXEC sp_executesql @dropCmd
+	 EXEC sp_executesql @cmd
+	 SET     @i +=1;
 	END
 	END
 	", $DbConn)
