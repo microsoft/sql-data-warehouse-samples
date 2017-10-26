@@ -526,10 +526,11 @@ workflow spokeDbSetup {
 	EXEC [meta].[SetupExternalTablesToDw] '$Datawarehouse'
 	", $DbConn)
 		$SetupDatabaseEQCredentials.CommandTimeout=0
+		$SetupDatabaseEQCredentials.ExecuteNonQuery()
 
-		$Da=New-Object system.Data.SqlClient.SqlDataAdapter($SetupDatabaseEQCredentials) 
-		$Ds=New-Object system.Data.DataSet 
-		[void]$Da.fill($Ds)
+		# $Da=New-Object system.Data.SqlClient.SqlDataAdapter($SetupDatabaseEQCredentials) 
+		# $Ds=New-Object system.Data.DataSet 
+		# [void]$Da.fill($Ds)
 		$DbConn.Close() 
 	}
 	
