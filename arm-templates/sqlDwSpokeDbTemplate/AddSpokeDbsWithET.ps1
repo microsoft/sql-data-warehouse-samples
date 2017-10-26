@@ -49,10 +49,11 @@ workflow spokeDbSetup {
 	CREATE LOGIN $SpokeDbBaseName$i WITH PASSWORD = 'p@ssw0rd##%$i';
 	", $MasterConn)
 		$CreateDatabaseLoginInMaster.CommandTimeout = 0;
+		$CreateDatabaseLoginInMaster.ExecuteNonQuery()
 
-		$Da=New-Object system.Data.SqlClient.SqlDataAdapter($CreateDatabaseLoginInMaster) 
-		$Ds=New-Object system.Data.DataSet 
-		[void]$Da.fill($Ds)
+		# $Da=New-Object system.Data.SqlClient.SqlDataAdapter($CreateDatabaseLoginInMaster) 
+		# $Ds=New-Object system.Data.DataSet 
+		# [void]$Da.fill($Ds)
 	}
 	$MasterConn.Close() 
 	
@@ -73,10 +74,11 @@ workflow spokeDbSetup {
 		END
 		", $DwConn)
 		$CreateDatabaseUserInDw.CommandTimeout=0
+		$CreateDatabaseUserInDw.ExecuteNonQuery()
 	
-	   $Da=New-Object system.Data.SqlClient.SqlDataAdapter($CreateDatabaseUserInDw) 
-	   $Ds=New-Object system.Data.DataSet 
-	   [void]$Da.fill($Ds)
+	#    $Da=New-Object system.Data.SqlClient.SqlDataAdapter($CreateDatabaseUserInDw) 
+	#    $Ds=New-Object system.Data.DataSet 
+	#    [void]$Da.fill($Ds)
 	   
 	}
 	$DwConn.Close() 
@@ -110,11 +112,12 @@ workflow spokeDbSetup {
 		END
 		", $DbConn)
 		$SetupDatabaseEQCredentials.CommandTimeout=0
+		$SetupDatabaseEQCredentials.ExecuteNonQuery()
 		
 
-		$Da=New-Object system.Data.SqlClient.SqlDataAdapter($SetupDatabaseEQCredentials) 
-		$Ds=New-Object system.Data.DataSet 
-		[void]$Da.fill($Ds)
+		# $Da=New-Object system.Data.SqlClient.SqlDataAdapter($SetupDatabaseEQCredentials) 
+		# $Ds=New-Object system.Data.DataSet 
+		# [void]$Da.fill($Ds)
 		$DbConn.Close() 
 	}
 	
@@ -182,10 +185,11 @@ workflow spokeDbSetup {
 
 		", $DwConn)
 		$CreateExternalTableFromDw.CommandTimeout = 0
+		$CreateExternalTableFromDw.ExecuteNonQuery()
 
-		$Da=New-Object system.Data.SqlClient.SqlDataAdapter($CreateExternalTableFromDw) 
-		$Ds=New-Object system.Data.DataSet 
-		[void]$Da.fill($Ds)
+		# $Da=New-Object system.Data.SqlClient.SqlDataAdapter($CreateExternalTableFromDw) 
+		# $Ds=New-Object system.Data.DataSet 
+		# [void]$Da.fill($Ds)
 	
 	
 		$GenerateDatamartExternalTableDefinitionsAndGrantSelect=new-object system.Data.SqlClient.SqlCommand("
@@ -248,10 +252,11 @@ workflow spokeDbSetup {
 		END
 		", $DwConn)
 		$GenerateDatamartExternalTableDefinitionsAndGrantSelect.CommandTimeout = 0
+		$GenerateDatamartExternalTableDefinitionsAndGrantSelect.ExecuteNonQuery()
 
-		$Da=New-Object system.Data.SqlClient.SqlDataAdapter($GenerateDatamartExternalTableDefinitionsAndGrantSelect) 
-		$Ds=New-Object system.Data.DataSet 
-		[void]$Da.fill($Ds)
+		# $Da=New-Object system.Data.SqlClient.SqlDataAdapter($GenerateDatamartExternalTableDefinitionsAndGrantSelect) 
+		# $Ds=New-Object system.Data.DataSet 
+		# [void]$Da.fill($Ds)
 
 	
 		$AddObjectsForDatamartUserToControlTable=new-object system.Data.SqlClient.SqlCommand("
@@ -362,10 +367,11 @@ workflow spokeDbSetup {
 		END
 		", $DwConn)
 		$AddObjectsForDatamartUserToControlTable.CommandTimeout=0
+		$AddObjectsForDatamartUserToControlTable.ExecuteNonQuery()
 
-		$Da=New-Object system.Data.SqlClient.SqlDataAdapter($AddObjectsForDatamartUserToControlTable) 
-		$Ds=New-Object system.Data.DataSet 
-		[void]$Da.fill($Ds)
+		# $Da=New-Object system.Data.SqlClient.SqlDataAdapter($AddObjectsForDatamartUserToControlTable) 
+		# $Ds=New-Object system.Data.DataSet 
+		# [void]$Da.fill($Ds)
 		
 	
 	# $RemoteTableDefinitionView=new-object system.Data.SqlClient.SqlCommand("
@@ -399,10 +405,11 @@ workflow spokeDbSetup {
 		EXEC sp_executesql N'CREATE SCHEMA [meta]'
 		END", $DbConn)
 		$CreateMetaSchemaDb.CommandTimeout = 0
+		$CreateMetaSchemaDb.ExecuteNonQuery()
 
-		$Da=New-Object system.Data.SqlClient.SqlDataAdapter($CreateMetaSchemaDb) 
-		$Ds=New-Object system.Data.DataSet 
-		[void]$Da.fill($Ds)
+		# $Da=New-Object system.Data.SqlClient.SqlDataAdapter($CreateMetaSchemaDb) 
+		# $Ds=New-Object system.Data.DataSet 
+		# [void]$Da.fill($Ds)
 		
 		$SetupExternalTablesToDw=new-object system.Data.SqlClient.SqlCommand("
 		
@@ -468,11 +475,12 @@ workflow spokeDbSetup {
 		END
 		", $DbConn)
 		$SetupExternalTablesToDw.CommandTimeout=0
+		$SetupExternalTablesToDw.ExecuteNonQuery()
 		
-		$Da=New-Object system.Data.SqlClient.SqlDataAdapter($SetupExternalTablesToDw) 
-		$Ds=New-Object system.Data.DataSet 
-		[void]$Da.fill($Ds)
-		$DbConn.Close() 
+		# $Da=New-Object system.Data.SqlClient.SqlDataAdapter($SetupExternalTablesToDw) 
+		# $Ds=New-Object system.Data.DataSet 
+		# [void]$Da.fill($Ds)
+		# $DbConn.Close() 
 	}
 		
 	
@@ -487,23 +495,26 @@ workflow spokeDbSetup {
 	EXEC [meta].[AddObjectsForDatamartUserToControlTable] '$SpokeDbBaseName$i', '$Datawarehouse', null, null
 	", $DwConn)
 		$AddObjectsForDatamartUserToControlTable.CommandTimeout=0
+		$AddObjectsForDatamartUserToControlTable.ExecuteNonQuery()
 		
-		$Da=New-Object system.Data.SqlClient.SqlDataAdapter($AddObjectsForDatamartUserToControlTable) 
-		$Ds=New-Object system.Data.DataSet 
-		[void]$Da.fill($Ds)
+		# $Da=New-Object system.Data.SqlClient.SqlDataAdapter($AddObjectsForDatamartUserToControlTable) 
+		# $Ds=New-Object system.Data.DataSet 
+		# [void]$Da.fill($Ds)
 	}
 	
 	$GenerateDatamartExternalTableDefinitionsAndGrantSelect=new-object system.Data.SqlClient.SqlCommand("
 	EXEC [meta].[GenerateDatamartExternalTableDefinitionsAndGrantSelect]
 	", $DwConn)
 	$GenerateDatamartExternalTableDefinitionsAndGrantSelect.CommandTimeout=0
-	
-	$Da=New-Object system.Data.SqlClient.SqlDataAdapter($GenerateDatamartExternalTableDefinitionsAndGrantSelect) 
-	$Ds=New-Object system.Data.DataSet 
-	[void]$Da.fill($Ds)
+	$GenerateDatamartExternalTableDefinitionsAndGrantSelect.ExecuteNonQuery()
+	# $Da=New-Object system.Data.SqlClient.SqlDataAdapter($GenerateDatamartExternalTableDefinitionsAndGrantSelect) 
+	# $Ds=New-Object system.Data.DataSet 
+	# [void]$Da.fill($Ds)
 	
 	
 	$DwConn.Close() 
+
+	Start-Sleep -s 60
 	
 	### Execute stored procedures to generate external table definitions in each of the databases
 	
