@@ -16,7 +16,7 @@
         },
         "scriptUri": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/hirokib/sql-data-warehouse-samples/a2dcbc1/arm-templates/sqlDwSpokeDbTemplate/AddSpokeDbsWithET.ps1"
+            "defaultValue": "https://raw.githubusercontent.com/hirokib/sql-data-warehouse-samples/5476b2b/arm-templates/sqlDwSpokeDbTemplate/AddSpokeDbsWithET.ps1"
         },
         "logicalServerName": {
             "type": "string"
