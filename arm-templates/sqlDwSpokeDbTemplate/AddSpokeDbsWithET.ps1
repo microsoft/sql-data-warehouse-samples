@@ -39,7 +39,7 @@ workflow spokeDbSetup {
 	Write-Output $SpokeCount
 	
 	# Define the connection to the logical server master database 
-	$MasterConn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$SqlServer.database.windows.net,$SqlServerPort;Initial Catalog=master;Persist Security Info=False;User ID=$SqlUsername;Password=$SqlPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;")         
+	$MasterConn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$SqlServer.database.windows.net,$SqlServerPort;Initial Catalog=master;Persist Security Info=False;User ID=$SqlUsername;Password=$SqlPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=0;")         
 	# Open the SQL connection 
 	$MasterConn.Open() 
 	
@@ -59,7 +59,7 @@ workflow spokeDbSetup {
 	
 	
 	# Define the connection to the SQL data warehouse instance
-	$DwConn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$SqlServer.database.windows.net,$SqlServerPort;Initial Catalog=$Datawarehouse;Persist Security Info=False;User ID=$SqlUsername;Password=$SqlPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;")         
+	$DwConn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$SqlServer.database.windows.net,$SqlServerPort;Initial Catalog=$Datawarehouse;Persist Security Info=False;User ID=$SqlUsername;Password=$SqlPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=0;")         
 	# Open the SQL connection 
 	$DwConn.Open() 
 	
@@ -86,7 +86,7 @@ workflow spokeDbSetup {
 	
 	# Setup each database instance with connections to the data warehouse instance given the credentials just created and setup meta schema
 	For ($i=0; $i -lt $SpokeCount; $i++) {
-		$DbConn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$SqlServer.database.windows.net,$SqlServerPort;Initial Catalog=$SpokeDbBaseName$i;Persist Security Info=False;User ID=$SqlUsername;Password=$SqlPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;")         
+		$DbConn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$SqlServer.database.windows.net,$SqlServerPort;Initial Catalog=$SpokeDbBaseName$i;Persist Security Info=False;User ID=$SqlUsername;Password=$SqlPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=0;")         
 
 		$DbConn.Open() 
 		$SetupDatabaseEQCredentials=new-object system.Data.SqlClient.SqlCommand("
@@ -123,7 +123,7 @@ workflow spokeDbSetup {
 	
 	############## Load DW with stored procedures ##############
 	# Define the connection to the SQL data warehouse instance
-	$DwConn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$SqlServer.database.windows.net,$SqlServerPort;Initial Catalog=$Datawarehouse;Persist Security Info=False;User ID=$SqlUsername;Password=$SqlPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;")         
+	$DwConn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$SqlServer.database.windows.net,$SqlServerPort;Initial Catalog=$Datawarehouse;Persist Security Info=False;User ID=$SqlUsername;Password=$SqlPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=0;")         
 	# Open the SQL connection 
 	$DwConn.Open() 
 	
@@ -396,7 +396,7 @@ workflow spokeDbSetup {
 	# Setup each database instance with connections to the data warehouse instance given the credentials just created
 			
 	For ($i=0; $i -lt $SpokeCount; $i++) {
-		$DbConn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$SqlServer.database.windows.net,$SqlServerPort;Initial Catalog=$SpokeDbBaseName$i;Persist Security Info=False;User ID=$SqlUsername;Password=$SqlPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;")         
+		$DbConn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$SqlServer.database.windows.net,$SqlServerPort;Initial Catalog=$SpokeDbBaseName$i;Persist Security Info=False;User ID=$SqlUsername;Password=$SqlPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=0;")         
 		
 		$DbConn.Open() 
 		$CreateMetaSchemaDb=new-object system.Data.SqlClient.SqlCommand("
@@ -486,7 +486,7 @@ workflow spokeDbSetup {
 	
 	### Execute stored procedures to generate the control tables and external metadata information for each of the dbs created against the DW
 	
-	$DwConn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$SqlServer.database.windows.net,$SqlServerPort;Initial Catalog=$Datawarehouse;Persist Security Info=False;User ID=$SqlUsername;Password=$SqlPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;")         
+	$DwConn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$SqlServer.database.windows.net,$SqlServerPort;Initial Catalog=$Datawarehouse;Persist Security Info=False;User ID=$SqlUsername;Password=$SqlPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=0;")         
 	# Open the SQL connection 
 	$DwConn.Open() 
 	
@@ -519,7 +519,7 @@ workflow spokeDbSetup {
 	### Execute stored procedures to generate external table definitions in each of the databases
 	
 	For ($i=0; $i -lt $SpokeCount; $i++) {
-		$DbConn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$SqlServer.database.windows.net,$SqlServerPort;Initial Catalog=$SpokeDbBaseName$i;Persist Security Info=False;User ID=$SqlUsername;Password=$SqlPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;")         
+		$DbConn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$SqlServer.database.windows.net,$SqlServerPort;Initial Catalog=$SpokeDbBaseName$i;Persist Security Info=False;User ID=$SqlUsername;Password=$SqlPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=0;")         
 	
 		$DbConn.Open() 
 		$SetupDatabaseEQCredentials=new-object system.Data.SqlClient.SqlCommand("
