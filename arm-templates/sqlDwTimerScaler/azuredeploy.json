@@ -2,26 +2,27 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01-preview/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "sqlDwResourceGroup": {
+        "SQL DW Resource Group": {
             "type": "string",
             "metadata": {
                 "description": "The resource group of your pre-existing SQL Data Warehouse."
             }
         },
-        "sqlDwServerName": {
+        "SQL DW Logical Server": {
             "type": "string",
             "metadata": {
                 "description": "The server name of your pre-existing SQL Data Warehouse."
             }
         },
-        "sqlDwDatabaseName": {
+        "SQL DW Name": {
             "type": "string",
             "metadata": {
                 "description": "The database name of your pre-existing SQL Data Warehouse."
             }
         },
-        "appName": {
+        "App Service Name": {
             "type": "string",
+            "defaultValue": "DWOperations",
             "metadata": {
                 "description": "The name of the function app that you wish to create."
             }
@@ -38,25 +39,25 @@
                 "description": "Storage Account type that will be used to host logs and the queue mechanism."
             }
         },
-        "tenantId": {
+        "Active Directory ID": {
             "type": "string",
             "metadata": {
                 "description": "Azure Active Directory ID where Serivce Principal Account was created."
             }
         },
-        "subscriptionId": {
+        "Subscription ID": {
             "type": "string",
             "metadata": {
                 "description": "Subscription GUID of the the subscription where the SQL Data Warehouse instance resides."
             }
         },
-        "clientId": {
+        "Service Principal Application ID": {
             "type": "string",
             "metadata": {
                 "description": "ApplicationId of the Service Principal account with access to SQL Data Warehouse instance."
             }
         },
-        "clientKey": {
+        "Service Principal Secret Key": {
             "type": "secureString",
             "metadata": {
                 "description": "Secret Key of the Service Principal account."
@@ -257,8 +258,8 @@
         }
     },
     "variables": {
-        "functionAppName": "[parameters('appName')]",
-        "hostingPlanName": "[concat(parameters('appName'),'plan')]",
+        "functionApp Service Name": "[parameters('App Service Name')]",
+        "hostingPlanName": "[concat(parameters('App Service Name'),'plan')]",
         "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
         "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
         "scaleUpTimeMinute": "[replace(split(substring(parameters('scaleUpTime'), 11, 5), ':')[1],'00', '0')]",
@@ -293,7 +294,7 @@
         {
             "type": "Microsoft.Web/sites",
             "kind": "functionapp",
-            "name": "[variables('functionAppName')]",
+            "name": "[variables('functionApp Service Name')]",
             "apiVersion": "2015-08-01",
             "location": "[resourceGroup().location]",
             "properties": {
@@ -321,7 +322,7 @@
                         },
                         {
                             "name": "WEBSITE_CONTENTSHARE",
-                            "value": "[toLower(variables('functionAppName'))]"
+                            "value": "[toLower(variables('functionApp Service Name'))]"
                         },
                         {
                             "name": "WEBSITE_TIME_ZONE",
@@ -329,31 +330,31 @@
                         },
                         {
                             "name": "SubscriptionId",
-                            "value": "[parameters('subscriptionId')]"
+                            "value": "[parameters('Subscription ID')]"
                         },
                         {
                             "name": "TenantId",
-                            "value": "[parameters('tenantId')]"
+                            "value": "[parameters('Active Directory ID')]"
                         },
                         {
                             "name": "ClientId",
-                            "value": "[parameters('clientId')]"
+                            "value": "[parameters('Service Principal Application ID')]"
                         },
                         {
                             "name": "ClientKey",
-                            "value": "[parameters('clientKey')]"
+                            "value": "[parameters('Service Principal Secret Key')]"
                         },
                         {
                             "name": "ResourceGroup",
-                            "value": "[parameters('sqlDwResourceGroup')]"
+                            "value": "[parameters('SQL DW Resource Group')]"
                         },
                         {
                             "name": "ServerName",
-                            "value": "[parameters('sqlDwServerName')]"
+                            "value": "[parameters('SQL DW Logical Server')]"
                         },
                         {
                             "name": "DatabaseName",
-                            "value": "[parameters('sqlDwDatabaseName')]"
+                            "value": "[parameters('SQL DW Name')]"
                         },
                         {
                             "name": "ScaleUpTime",
@@ -380,7 +381,7 @@
                     "connectionString": ""
                 },
                 "dependsOn": [
-                    "[concat('Microsoft.Web/sites/', variables('functionAppName'))]"
+                    "[concat('Microsoft.Web/sites/', variables('functionApp Service Name'))]"
                 ]
             }],
             "dependsOn": [
