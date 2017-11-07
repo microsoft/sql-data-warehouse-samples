@@ -5,5 +5,5 @@
 <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.png"/>
 </a>
 
+This template will deploy a Free Azure App Service Plan, a consumption based Azure Function App Service, and a storage account for managing the operations and logs. 
 
-This template deploys SQL DW Timer Scaler.
