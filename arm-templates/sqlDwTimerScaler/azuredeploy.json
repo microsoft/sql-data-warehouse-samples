@@ -11,13 +11,13 @@
         "SQL DW Logical Server": {
             "type": "string",
             "metadata": {
-                "description": "The server name of your pre-existing SQL Data Warehouse."
+                "description": "The logical server of your pre-existing SQL Data Warehouse."
             }
         },
         "SQL DW Name": {
             "type": "string",
             "metadata": {
-                "description": "The database name of your pre-existing SQL Data Warehouse."
+                "description": "The name of your pre-existing SQL Data Warehouse."
             }
         },
         "App Service Name": {
@@ -42,7 +42,7 @@
         "Active Directory ID": {
             "type": "string",
             "metadata": {
-                "description": "Azure Active Directory ID where Serivce Principal Account was created."
+                "description": "Azure Active Directory ID where Serivce Principal Account was created. This is also known as a TenantID"
             }
         },
         "Subscription ID": {
