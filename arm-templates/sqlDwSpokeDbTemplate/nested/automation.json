@@ -1,0 +1,119 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "automationAccountName": {
+            "type": "string",
+            "defaultValue": "[concat('auto', uniquestring(resourceGroup().id))]"
+        },
+        "automationAccountLocation": {
+            "type": "string",
+            "defaultValue": "West Central US"
+        },
+        "automationAccountSku": {
+            "type": "string",
+            "defaultValue": "Free"
+        },
+        "scriptUri": {
+            "type": "string",
+            "defaultValue": "https://raw.githubusercontent.com/hirokib/sql-data-warehouse-samples/c2fb2e2/arm-templates/sqlDwSpokeDbTemplate/AddSpokeDbsWithET.ps1"
+        },
+        "logicalServerName": {
+            "type": "string"
+        },
+        "serverAdminUserName": {
+            "type": "string"
+        },
+        "serverAdminPassword": {
+            "type": "securestring"
+        },
+        "datawarehouseName": {
+            "type": "string"
+        },
+        "databaseCount": {
+            "type": "int"
+        },
+        "databaseBaseName": {
+            "type": "string",
+            "defaultValue": ["concat('spoke', uniquestring(resourceGroup().id), 'dbn')"]
+        },
+        "guid": {
+            "type":"string",
+            "defaultValue": "[guid(resourceGroup().id)]"
+        }
+    },
+    "variables": {
+        "runbookName": "spokeDbSetup"
+    },
+    "resources": [{
+        "name": "[parameters('automationAccountName')]",
+        "type": "Microsoft.Automation/automationAccounts",
+        "apiVersion": "2015-10-31",
+        "location": "[parameters('automationAccountLocation')]",
+        "tags": {},
+        "properties": {
+            "sku": {
+                "name": "[parameters('automationAccountSku')]"
+            }
+        },
+        "resources": [{
+                "name": "logicalServerAdminCredential",
+                "type": "credentials",
+                "apiVersion": "2015-01-01-preview",
+                "dependsOn": [
+                    "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+                ],
+                "tags": {},
+                "properties": {
+                    "userName": "[parameters('serverAdminUserName')]",
+                    "password": "[parameters('serverAdminPassword')]"
+                }
+            },
+            {
+                "name": "[variables('runbookName')]",
+                "type": "runbooks",
+                "apiVersion": "2015-01-01-preview",
+                "location": "westcentralus",
+                "dependsOn": [
+                    "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+                ],
+                "tags": {},
+                "properties": {
+                    "runbookType": "Script",
+                    "logProgress": "false",
+                    "logVerbose": "false",
+                    "description": "is this the problems?",
+                    "publishContentLink": {
+                        "uri": "[parameters('scriptUri')]",
+                        "version": "1.0.0.0"
+                    }
+                }
+            },
+            {
+                "name": "[parameters('guid')]",
+                "type": "jobs",
+                "apiVersion": "2015-01-01-preview",
+                "location": "westcentralus",
+                "dependsOn": [
+                    "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
+                    "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'), '/credentials/logicalServerAdminCredential')]",
+                    "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'), '/runbooks/',variables('runbookName'))]"
+                ],
+                "properties": {
+                    "runbook": {
+                        "name": "[variables('runbookName')]"
+                    },
+                    "parameters": {
+                        "SqlServer": "[parameters('logicalServerName')]",
+                        "Datawarehouse": "[parameters('datawarehouseName')]",
+                        "SpokeDbBaseName": "[parameters('databaseBaseName')]",
+                        "SpokeCount": "[parameters('databaseCount')]"
+
+                    }
+                }
+
+            }
+        ]
+    }],
+    "outputs": {}
+}
