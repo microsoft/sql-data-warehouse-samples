@@ -195,58 +195,82 @@ workflow spokeDbSetup {
 		$GenerateDatamartExternalTableDefinitionsAndGrantSelect=new-object system.Data.SqlClient.SqlCommand("
 		CREATE PROC [meta].[GenerateDatamartExternalTableDefinitionsAndGrantSelect] AS
 		BEGIN
-		IF EXISTS ( SELECT * FROM sys.tables WHERE object_id = OBJECT_ID('meta.DatamartExternalTableDefinitions') )
-		BEGIN
-		DROP TABLE meta.DatamartExternalTableDefinitions
-		END
-
-		CREATE TABLE meta.DatamartExternalTableDefinitions
-		WITH
-		( 
-		DISTRIBUTION = ROUND_ROBIN
-		, HEAP
-		)
-		AS
-		SELECT  
-		ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS Sequence
-		, [DataMartUser]
-		, [DataSource]
-		, [ObjectId]
-		, [TableName] 
-		, [SchemaName]
-		, CAST('' AS VARCHAR(max)) AS [DDL]
-		FROM
-		[meta].[DatamartControlTable]
-
-		IF NOT EXISTS (SELECT * FROM sys.objects obj WHERE obj.[name] = 'RemoteTableDefinitionView' and obj.[type] = 'V')
-		EXEC sp_executesql N'
-		CREATE VIEW [meta].[RemoteTableDefinitionView] AS 
-		SELECT [TableName]
-		,  [SchemaName]
-		,  [DDL]
-		FROM [meta].[DatamartExternalTableDefinitions]
-		WHERE DataMartUser = SUSER_SNAME();'
-
-		DECLARE @nbr_statements INT = (SELECT COUNT(*) FROM [meta].[DatamartExternalTableDefinitions])
-		,       @i INT = 1
-		;
-
-		DECLARE @databaseName VARCHAR(100) = DB_NAME();
-
-		WHILE   @i <= @nbr_statements
-		BEGIN
-		DECLARE @DDL NVARCHAR(MAX); --= (SELECT sql_code FROM [meta].[DatamartControlTable] WHERE Sequence = @i);
-		DECLARE @tableName VARCHAR(1000) = (SELECT tableName FROM [meta].[DatamartExternalTableDefinitions] WHERE Sequence = @i);
-		DECLARE @schemaName VARCHAR(1000) = (SELECT schemaName FROM [meta].[DatamartExternalTableDefinitions] WHERE Sequence = @i);
-		DECLARE @externalDataSourceName VARCHAR(1000) = (SELECT [DataSource] FROM [meta].[DatamartExternalTableDefinitions] WHERE Sequence = @i);
-		DECLARE @datamartUser VARCHAR(1000) = (SELECT [DataMartUser] FROM [meta].[DatamartExternalTableDefinitions] WHERE Sequence = @i);
-		DECLARE @grantCommand NVARCHAR(100) = 'GRANT SELECT ON OBJECT::['+@schemaName+'].['+@tableName+'] TO ['+@datamartUser+'];';
-		DECLARE @grantViewCommand NVARCHAR(100) = 'GRANT SELECT ON OBJECT::[meta].[RemoteTableDefinitionView] TO '+@datamartUser+'';
-		EXEC    [meta].[createExternalTableFromDw] @databaseName, @schemaName, @tableName, @schemaName, @externalDataSourceName, @DDL OUTPUT;
-		UPDATE  [meta].[DatamartExternalTableDefinitions] SET DDL = @DDL WHERE Sequence = @i;
-		EXEC sp_executesql @grantCommand;
-		EXEC sp_executesql @grantViewCommand;
-		SET     @i +=1;
+			IF EXISTS ( SELECT * FROM sys.tables WHERE object_id = OBJECT_ID('meta.DatamartExternalTableDefinitions') )
+			BEGIN
+				DROP TABLE meta.DatamartExternalTableDefinitions
+			END
+			
+			-- Gets distinct schema table combinations in control table
+			CREATE TABLE meta.DatamartExternalTableDefinitions 
+			WITH (DISTRIBUTION=ROUND_ROBIN, HEAP)
+			AS
+			SELECT	ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS [Sequence]
+			,		[TableName] 
+			,		[SchemaName]
+			,		CAST('' AS NVARCHAR(MAX)) AS [DDL]
+			FROM [meta].[DatamartControlTable]
+			GROUP BY	[TableName] 
+			,			[SchemaName]	
+		
+			DECLARE @databaseName VARCHAR(100) = DB_NAME();
+		
+			-- Generates DDL statements for each schema/table in control table
+			DECLARE @nbr_statements INT = (SELECT COUNT(*) FROM meta.DatamartExternalTableDefinitions)
+			,       @i INT = 1
+			;
+			
+			WHILE   @i <= @nbr_statements
+			BEGIN
+				DECLARE @DDL NVARCHAR(MAX); 
+				DECLARE @tableName	VARCHAR(1000)				= (SELECT [TableName]		FROM meta.DatamartExternalTableDefinitions WHERE Sequence = @i);
+				DECLARE @schemaName	VARCHAR(1000)				= (SELECT [SchemaName]		FROM meta.DatamartExternalTableDefinitions WHERE Sequence = @i);
+				EXEC    [meta].[createExternalTableFromDw] @databaseName, @schemaName, @tableName, @schemaName, @databaseName, @DDL OUTPUT;
+				UPDATE  meta.DatamartExternalTableDefinitions SET DDL = @DDL WHERE Sequence = @i;
+		
+				SET     @i +=1;
+			END
+		
+			-- Creates RemoteTableView for data marts to get their DDL statements
+			IF NOT EXISTS (SELECT * FROM sys.objects obj WHERE obj.[name] = 'RemoteTableDefinitionView' and obj.[type] = 'V')
+				EXEC sp_executesql N'
+				CREATE VIEW [meta].[RemoteTableDefinitionView] AS 
+				SELECT	ct.[TableName]
+				,		ct.[SchemaName]
+				,		et.[DDL]
+				FROM	[meta].[DatamartExternalTableDefinitions] et
+				JOIN	[meta].[DatamartControlTable] ct
+				ON		ct.[TableName] = et.[TableName] AND ct.[SchemaName] = et.[SchemaName]
+				WHERE	ct.[DataMartUser] = SUSER_SNAME();'
+		
+			-- Grants SELECT Permissions to all data mart users for control table permissions plus the remote table view
+			CREATE TABLE #GrantPermissionsFromControlTable
+			WITH (DISTRIBUTION=ROUND_ROBIN, HEAP)
+			AS 
+			SELECT	ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS [Sequence]
+			,		ct.[DataMartUser]
+			,		ct.[DataSource]
+			,		ct.[TableName]
+			,		ct.[SchemaName]
+			FROM	[meta].[DatamartControlTable] ct
+		
+			DECLARE @nbr_statements2 INT = (SELECT COUNT(*) FROM #GrantPermissionsFromControlTable)
+			,       @j INT = 1
+			;
+			
+			WHILE   @j <= @nbr_statements
+			BEGIN
+				DECLARE @tableName2		VARCHAR(1000)			= (SELECT [TableName]		FROM #GrantPermissionsFromControlTable WHERE Sequence = @j);
+				DECLARE @schemaName2	VARCHAR(1000)			= (SELECT [SchemaName]		FROM #GrantPermissionsFromControlTable WHERE Sequence = @j);
+				DECLARE @datamartUser VARCHAR(1000)				= (SELECT [DataMartUser]	FROM #GrantPermissionsFromControlTable WHERE Sequence = @j);
+				DECLARE @grantCommand NVARCHAR(100)				= 'GRANT SELECT ON OBJECT::['+@schemaName2+'].['+@tableName2+'] TO ['+@datamartUser+'];';
+				DECLARE @grantViewCommand NVARCHAR(100)			= 'GRANT SELECT ON OBJECT::[meta].[RemoteTableDefinitionView] TO '+@datamartUser+';';
+				EXEC sp_executesql @grantCommand;
+				EXEC sp_executesql @grantViewCommand;
+				SET     @j +=1;
+			END
+		
+			DROP TABLE #GrantPermissionsFromControlTable
+		
 		END
 
 		END
@@ -415,63 +439,69 @@ workflow spokeDbSetup {
 		
 		CREATE PROC [meta].[SetupExternalTablesToDw] @externalTableSource VARCHAR(100) AS
 		BEGIN
-		IF NOT EXISTS (SELECT * FROM sys.schemas sch WHERE sch.[name] = @externalTableSource)
-		BEGIN
-		DECLARE @createSchemaCmd NVARCHAR(100) = N'CREATE SCHEMA [' + @externalTableSource + ']';
-		EXEC sp_executesql @createSchemaCmd;
-		END
+			IF NOT EXISTS (SELECT * FROM sys.schemas sch WHERE sch.[name] = @externalTableSource)
+			BEGIN
+				DECLARE @createSchemaCmd NVARCHAR(100) = N'CREATE SCHEMA [' + @externalTableSource + ']';
+				EXEC sp_executesql @createSchemaCmd;
+			END
+		 
+			IF NOT EXISTS ( SELECT * 
+				FROM sys.external_tables et
+				JOIN sys.schemas sch
+				ON  et.[schema_id] = sch.[schema_id]
+				AND  et.[name] = 'RemoteTableDefinitionView' )
+			BEGIN
+				DECLARE @createRemoteTableDefinitionViewCmd NVARCHAR(400) = 
+				'
+				CREATE EXTERNAL TABLE [meta].[RemoteTableDefinitionView]
+				(
+					[TableName]  NVARCHAR(128) NOT NULL
+				,	[SchemaName] NVARCHAR(128) NOT NULL
+				,	[DDL]   NVARCHAR(MAX)  NULL
+				)
+				WITH
+				(
+					DATA_SOURCE = '+@externalTableSource+'
+				,	SCHEMA_NAME = ''meta''
+				,	OBJECT_NAME = ''RemoteTableDefinitionView''
+				)
+				'
+				EXEC sp_executesql @createRemoteTableDefinitionViewCmd;
+			END
 		
-		IF NOT EXISTS ( SELECT * 
-			FROM sys.external_tables et
-			JOIN sys.schemas sch
-			ON  et.[schema_id] = sch.[schema_id]
-			AND  et.[name] = 'RemoteTableDefinitionView' )
-		BEGIN
-		DECLARE @createRemoteTableDefinitionViewCmd NVARCHAR(400) = 
-		'
-		CREATE EXTERNAL TABLE [meta].[RemoteTableDefinitionView]
-		(
-		[TableName]  NVARCHAR(128) NOT NULL
-		, [SchemaName] NVARCHAR(128) NOT NULL
-		, [DDL]   VARCHAR(MAX)  NULL
-		)
-		WITH
-		(
-		DATA_SOURCE = '+@externalTableSource+'
-		, SCHEMA_NAME = ''meta''
-		, OBJECT_NAME = ''RemoteTableDefinitionView''
-		)
-		'
-		EXEC sp_executesql @createRemoteTableDefinitionViewCmd;
-		END
+			SELECT ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS Sequence
+			,    [TableName] 
+			,    [SchemaName]
+			,    [DDL]  
+			INTO #RemoteTableDefinitions
+			FROM [meta].[RemoteTableDefinitionView]
 		
-		SELECT ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS Sequence
-		,    [TableName] 
-		,    [SchemaName]
-		,    [DDL]  
-		INTO #RemoteTableDefinitions
-		FROM [meta].[RemoteTableDefinitionView]
+			DECLARE @nbr_statements INT = (SELECT COUNT(*) FROM #RemoteTableDefinitions)
+			,       @i INT = 1
+			;
 		
-		DECLARE @nbr_statements INT = (SELECT COUNT(*) FROM #RemoteTableDefinitions)
-		,       @i INT = 1
-		;
+			WHILE   @i <= @nbr_statements
+			BEGIN
+				DECLARE @cmd NVARCHAR(MAX)			= (SELECT [DDL]				FROM #RemoteTableDefinitions WHERE Sequence = @i); 
+				DECLARE @tableName	VARCHAR(1000)	= (SELECT [TableName]		FROM #RemoteTableDefinitions WHERE Sequence = @i);
+				DECLARE @schemaName	VARCHAR(1000)	= (SELECT [SchemaName]		FROM #RemoteTableDefinitions WHERE Sequence = @i);	
 		
-		WHILE   @i <= @nbr_statements
-		BEGIN
+				IF EXISTS (  SELECT * 
+				FROM sys.external_tables et
+				JOIN sys.schemas sch
+				ON  et.[schema_id] = sch.[schema_id]
+				WHERE	et.[name]	= @tableName
+				AND		sch.[name]	= @schemaName )
+				BEGIN
+					DECLARE @dropExternalTableCmd NVARCHAR(MAX) = 'DROP EXTERNAL TABLE '+ @schemaName + '.[' + @tableName + ']' 
+					EXEC sp_executesql @dropExternalTableCmd
+				END
 		
-		DECLARE @cmd NVARCHAR(MAX) = (SELECT [DDL] FROM #RemoteTableDefinitions WHERE Sequence = @i); 
-		DECLARE @tableName VARCHAR(100) = (SELECT [TableName] FROM #RemoteTableDefinitions WHERE Sequence = @i); 
-		DECLARE @schemaName VARCHAR(100) = (SELECT [SchemaName] FROM #RemoteTableDefinitions WHERE Sequence = @i); 
-		DECLARE @dropCmd NVARCHAR(MAX) = '
-		IF EXISTS (SELECT * FROM sys.external_tables et JOIN sys.schemas sch ON et.[schema_id] = sch.[schema_id] WHERE et.[name] = '''+@schemaName+'_'+@tableName+''' AND sch.[name] = '''+@externalTableSource+''') 
-		BEGIN
-			DROP EXTERNAL TABLE ['+@externalTableSource+'].['+@schemaName+'_'+@tableName+']
-		END';
+				EXEC sp_executesql @cmd
+				SET     @i +=1;
+			END
 		
-		EXEC sp_executesql @dropCmd
-		EXEC sp_executesql @cmd
-		SET     @i +=1;
-		END
+			DROP TABLE #RemoteTableDefinitions
 		END
 		", $DbConn)
 		$SetupExternalTablesToDw.CommandTimeout=0
