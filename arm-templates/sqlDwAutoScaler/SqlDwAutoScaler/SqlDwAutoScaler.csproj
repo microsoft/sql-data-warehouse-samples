@@ -239,7 +239,6 @@
     <Content Include="ScaleSqlDwByTimer\function.json" />
     <Content Include="ScaleSqlDwByTimer\readme.md" />
     <Content Include="ScaleSqlDwByTimer\sample.dat" />
-    <Content Include="azuredeploy.json" />
     <None Include="Properties\PublishProfiles\autoscale-test1 - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\autoscale-test1 - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\EduDataFunctionApp - Web Deploy.pubxml" />
@@ -256,7 +255,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScaleSqlDwByTimer\ScaleSqlDwByTimer.cs" />
     <Compile Include="ScaleSqlDw\ScaleSqlDw.cs" />
     <Compile Include="Shared\DwClientFactory.cs" />

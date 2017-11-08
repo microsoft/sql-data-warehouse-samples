@@ -165,8 +165,8 @@ namespace SqlDwAutoScaler
 
             // This is the time in Azure relative to the WEBSITE_TIME_ZONE setting
             var current = DateTime.Now;
-            var scheduleStartTime = new DateTime(current.Year, current.Month, current.Day, Convert.ToInt32(startTime[0]), Convert.ToInt32(startTime[1]), Convert.ToInt32(startTime[2]), DateTimeKind.Utc);
-            var scheduleEndTime = new DateTime(current.Year, current.Month, current.Day, Convert.ToInt32(endTime[0]), Convert.ToInt32(endTime[1]), Convert.ToInt32(endTime[2]), DateTimeKind.Utc);
+            var scheduleStartTime = new DateTime(current.Year, current.Month, current.Day, Convert.ToInt32(startTime[0]), Convert.ToInt32(startTime[1]), 0, DateTimeKind.Local);
+            var scheduleEndTime = new DateTime(current.Year, current.Month, current.Day, Convert.ToInt32(endTime[0]), Convert.ToInt32(endTime[1]), 0, DateTimeKind.Local);
 
             _logger.Info($"Scale up schedule start time is {scheduleStartTime}");
             _logger.Info($"Scale up schedule end time is {scheduleEndTime}");
