@@ -260,8 +260,8 @@
     "scaleUpScheduleStartTimeHour": "[split(substring(parameters('scaleUpScheduleStartTime'), 11, 5), ':')[0]]",
     "scaleUpScheduleEndTimeMinute": "[replace(split(substring(parameters('scaleUpScheduleEndTime'), 11, 5), ':')[1], '00', '0')]",
     "scaleUpScheduleEndTimeHour": "[split(substring(parameters('scaleUpScheduleEndTime'), 11, 5), ':')[0]]",
-    "scaleUpScheduleStartTime": "[replace(replace('0 x y * * *', 'x', variables('scaleUpScheduleStartTimeMinute')), 'y', variables('scaleUpScheduleStartTimeHour'))]",
-    "scaleUpScheduleEndTime": "[replace(replace('0 x y * * *', 'x', variables('scaleUpScheduleEndTimeMinute')), 'y', variables('scaleUpScheduleEndTimeHour'))]"
+    "scaleUpScheduleStartTime": "[concat(variables('scaleUpScheduleStartTimeHour'), ':' , variables('scaleUpScheduleStartTimeMinute'))]",
+    "scaleUpScheduleEndTime": "[concat(variables('scaleUpScheduleEndTimeHour'), ':' , variables('scaleUpScheduleEndTimeMinute'))]"
   },
   "resources": [{
       "type": "Microsoft.Storage/storageAccounts",
