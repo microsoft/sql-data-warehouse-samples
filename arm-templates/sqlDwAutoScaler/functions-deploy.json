@@ -391,10 +391,6 @@
         "value": "[reference('MSDeploy').endTime]",
         "type": "string"
       },
-      "completeBool": {
-        "value": "[reference('MSDeploy').complete]",
-        "type": "string"
-      },
       "provisioningState": {
         "value": "[reference('MSDeploy').provisioningState]",
         "type": "string"
