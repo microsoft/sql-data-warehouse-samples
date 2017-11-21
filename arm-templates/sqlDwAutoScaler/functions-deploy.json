@@ -388,7 +388,7 @@
     ],
     "outputs": {
       "deploymentResult": {
-        "value": "[reference(concat('Microsoft.Web/sites/extensions/', variables('functionAppName'), '/MSDeploy')).MSDeployStatus.endTime]",
+        "value": "[reference('MSDeploy').MSDeployStatus.endTime]",
         "type": "string"
       }
     }
