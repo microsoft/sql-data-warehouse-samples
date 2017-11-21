@@ -385,5 +385,11 @@
         ]
       }
   
-    ]
+    ],
+    "outputs": {
+      "deploymentResult": {
+        "value": "[reference(concat('Microsoft.Web/sites/extensions', variables('functionAppName'), 'MSDeploy')).MSDeployStatus.endTime]",
+        "type": "string"
+      }
+    }
   }
