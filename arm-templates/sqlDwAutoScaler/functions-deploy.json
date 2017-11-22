@@ -377,7 +377,21 @@
           "dependsOn": [
             "[concat('Microsoft.Web/sites/', variables('functionAppName'))]"
           ],
-          "resources": []
+          "resources": [
+            { 
+              "apiVersion": "2017-05-10", 
+              "name": "secretTemplate", 
+              "type": "Microsoft.Resources/deployments", 
+              "properties": { 
+                "mode": "incremental", 
+                "templateLink": {
+                  "uri": "https://raw.githubusercontent.com/hirokib/sql-data-warehouse-samples/ad6e2c9/arm-templates/sqlDwAutoScaler/secrets-template.json",
+                  "contentVersion": "1.0.0.0"
+                }
+              },
+              "dependsOn":  "[concat('Microsoft.Web/sites/extensions', '/MSDeploy')]"
+          } 
+          ]
         }],
         "dependsOn": [
           "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
