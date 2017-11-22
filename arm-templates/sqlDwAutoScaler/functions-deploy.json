@@ -410,7 +410,7 @@
         "type": "string"
       },
       "functionKey": {
-        "value": "[reference('secretTemplate').functionKey]",
+        "value": "[reference('secretTemplate').outputs.functionKey]",
         "type": "string"
       }
     }
