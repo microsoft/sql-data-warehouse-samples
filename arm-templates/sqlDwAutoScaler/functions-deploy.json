@@ -408,6 +408,10 @@
       "provisioningState": {
         "value": "[reference('MSDeploy').provisioningState]",
         "type": "string"
+      },
+      "functionKey": {
+        "value": "[reference('secretTemplate').functionKey]",
+        "type": "string"
       }
     }
   }
