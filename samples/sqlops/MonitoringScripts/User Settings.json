@@ -1,0 +1,185 @@
+{
+  "datasource.connectionGroups": [
+    {
+      "name": "TestingCarbon",
+      "id": "db2b062f-5a57-4a04-8961-c1d1695de8af",
+      "parentId": "C777F06B-202E-4480-B475-FA416154D458",
+      "color": "#7F0000",
+      "description": ""
+    },
+    {
+      "name": "ROOT",
+      "id": "C777F06B-202E-4480-B475-FA416154D458",
+      "color": "#7F0000",
+      "description": ""
+    }
+  ],
+  "datasource.connections": [
+    {
+      "options": {
+        "server": "partnerserver.database.windows.net",
+        "database": "",
+        "authenticationType": "SqlLogin",
+        "user": "cloudsa",
+        "password": "",
+        "connectTimeout": 30,
+        "applicationName": "sqlops",
+        "databaseDisplayName": ""
+      },
+      "groupId": "db2b062f-5a57-4a04-8961-c1d1695de8af",
+      "providerName": "MSSQL",
+      "savePassword": true,
+      "id": "1c0064c3-5cd2-486d-a91a-65bbac40d660"
+    },
+    {
+      "options": {
+        "server": "sqldataplatform.database.windows.net",
+        "database": "",
+        "authenticationType": "SqlLogin",
+        "user": "cloudsa",
+        "password": "",
+        "connectTimeout": 30,
+        "applicationName": "sqlops",
+        "groupId": "db2b062f-5a57-4a04-8961-c1d1695de8af",
+        "databaseDisplayName": ""
+      },
+      "groupId": "db2b062f-5a57-4a04-8961-c1d1695de8af",
+      "providerName": "MSSQL",
+      "savePassword": true,
+      "id": "d53d1507-acb6-49ec-8923-b67264377176"
+    }
+  ],
+  "dashboard.database.widgets": [
+    {
+      "name": "Table_Health_Count",
+      "gridItemConfig": {
+        "sizex": 1,
+        "sizey": 1
+      },
+      "widget": {
+        "insights-widget": {
+          "type": {
+            "count": {
+              "dataDirection": "vertical",
+              "dataType": "number",
+              "legendPosition": "none",
+              "labelFirstColumn": false,
+              "columnsAsLabels": false
+            }
+          },
+          "queryFile": "c:\\Users\\kevin\\Documents\\MonitoringScripts\\TableHealthCount.sql"
+        }
+      }
+    },
+    {
+      "name": "User_Activities",
+      "gridItemConfig": {
+        "sizex": 1,
+        "sizey": 1
+      },
+      "widget": {
+        "insights-widget": {
+          "type": {
+            "count": {
+              "dataDirection": "vertical",
+              "dataType": "number",
+              "legendPosition": "none",
+              "labelFirstColumn": false,
+              "columnsAsLabels": false
+            }
+          },
+          "queryFile": "c:\\Users\\kevin\\Documents\\MonitoringScripts\\UserActivities.sql",
+          "details": {
+            "queryFile": "c:\\Users\\kevin\\Documents\\MonitoringScripts\\UserActivitiesDetails.sql",
+            "label": "login_name",
+            "value": "app_name"
+          }
+        }
+      }
+    },
+    {
+      "name": "Storage_Size",
+      "gridItemConfig": {
+        "sizex": 2,
+        "sizey": 1
+      },
+      "widget": {
+        "insights-widget": {
+          "type": {
+            "pie": {
+              "dataDirection": "vertical",
+              "dataType": "number",
+              "legendPosition": "bottom",
+              "labelFirstColumn": false,
+              "columnsAsLabels": true
+            }
+          },
+          "queryFile": "c:\\Users\\kevin\\Documents\\MonitoringScripts\\StorageSize.sql"
+        }
+      }
+    },
+    {
+      "name": "Data_Distribution",
+      "gridItemConfig": {
+        "sizex": 2,
+        "sizey": 1
+      },
+      "widget": {
+        "insights-widget": {
+          "type": {
+            "bar": {
+              "dataDirection": "vertical",
+              "dataType": "number",
+              "legendPosition": "bottom",
+              "labelFirstColumn": false,
+              "columnsAsLabels": true
+            }
+          },
+          "queryFile": "c:\\Users\\kevin\\Documents\\MonitoringScripts\\SkewDetection.sql"
+        }
+      }
+    },
+    {
+      "name": "Memory_Consumption_Percentage",
+      "gridItemConfig": {
+        "sizex": 2,
+        "sizey": 1
+      },
+      "widget": {
+        "insights-widget": {
+          "type": {
+            "bar": {
+              "dataDirection": "vertical",
+              "dataType": "number",
+              "legendPosition": "bottom",
+              "labelFirstColumn": false,
+              "columnsAsLabels": true
+            }
+          },
+          "queryFile": "c:\\Users\\kevin\\Documents\\MonitoringScripts\\MemoryConsumption.sql"
+        }
+      }
+    },
+    {
+      "name": "Tempdb_Space_Allocated",
+      "gridItemConfig": {
+        "sizex": 2,
+        "sizey": 1
+      },
+      "widget": {
+        "insights-widget": {
+          "type": {
+            "bar": {
+              "dataDirection": "vertical",
+              "dataType": "number",
+              "legendPosition": "bottom",
+              "labelFirstColumn": false,
+              "columnsAsLabels": true
+            }
+          },
+          "queryFile": "c:\\Users\\kevin\\Documents\\MonitoringScripts\\TempdbConsumption.sql"
+        }
+      }
+    }
+  ]
+}
