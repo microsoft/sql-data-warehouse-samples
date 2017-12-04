@@ -67,7 +67,7 @@
               "columnsAsLabels": false
             }
           },
-          "queryFile": "c:\\Users\\kevin\\Documents\\MonitoringScripts\\TableHealthCount.sql"
+          "queryFile": "{your file folder}\\TableHealthCount.sql"
         }
       }
     },
@@ -88,9 +88,9 @@
               "columnsAsLabels": false
             }
           },
-          "queryFile": "c:\\Users\\kevin\\Documents\\MonitoringScripts\\UserActivities.sql",
+          "queryFile": "{your file folder}\\UserActivities.sql",
           "details": {
-            "queryFile": "c:\\Users\\kevin\\Documents\\MonitoringScripts\\UserActivitiesDetails.sql",
+            "queryFile": "{your file folder}\\UserActivitiesDetails.sql",
             "label": "login_name",
             "value": "app_name"
           }
@@ -114,7 +114,7 @@
               "columnsAsLabels": true
             }
           },
-          "queryFile": "c:\\Users\\kevin\\Documents\\MonitoringScripts\\StorageSize.sql"
+          "queryFile": "{your file folder}\\StorageSize.sql"
         }
       }
     },
@@ -135,7 +135,7 @@
               "columnsAsLabels": true
             }
           },
-          "queryFile": "c:\\Users\\kevin\\Documents\\MonitoringScripts\\SkewDetection.sql"
+          "queryFile": "{your file folder}\\SkewDetection.sql"
         }
       }
     },
@@ -156,7 +156,7 @@
               "columnsAsLabels": true
             }
           },
-          "queryFile": "c:\\Users\\kevin\\Documents\\MonitoringScripts\\MemoryConsumption.sql"
+          "queryFile": "{your file folder}\\MemoryConsumption.sql"
         }
       }
     },
@@ -177,7 +177,7 @@
               "columnsAsLabels": true
             }
           },
-          "queryFile": "c:\\Users\\kevin\\Documents\\MonitoringScripts\\TempdbConsumption.sql"
+          "queryFile": "{your file folder}\\TempdbConsumption.sql"
         }
       }
     }
