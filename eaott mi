@@ -1,0 +1,143 @@
+[1mdiff --git a/samples/sqlops/MonitoringScripts/MemoryConsumption.sql b/samples/sqlops/MonitoringScripts/MemoryConsumption.sql[m
+[1mnew file mode 100644[m
+[1mindex 0000000..d5acb1e[m
+[1m--- /dev/null[m
+[1m+++ b/samples/sqlops/MonitoringScripts/MemoryConsumption.sql[m
+[36m@@ -0,0 +1,36 @@[m
+[32m+[m[32m/*-- sys.dm_pdw_sql_requests with the correct node id[m
+[32m+[m[32mCREATE VIEW sql_requests AS[m
+[32m+[m[32m(SELECT[m
+[32m+[m[32m       sr.request_id,[m
+[32m+[m[32m       sr.step_index,[m
+[32m+[m[32m       (CASE[m[41m [m
+[32m+[m[32m              WHEN (sr.distribution_id = -1 ) THEN[m[41m [m
+[32m+[m[32m              (SELECT pdw_node_id FROM sys.dm_pdw_nodes WHERE type = 'CONTROL')[m[41m [m
+[32m+[m[32m              ELSE d.pdw_node_id END) AS pdw_node_id,[m
+[32m+[m[32m       sr.distribution_id,[m
+[32m+[m[32m       sr.status,[m
+[32m+[m[32m       sr.error_id,[m
+[32m+[m[32m       sr.start_time,[m
+[32m+[m[32m       sr.end_time,[m
+[32m+[m[32m       sr.total_elapsed_time,[m
+[32m+[m[32m       sr.row_count,[m
+[32m+[m[32m       sr.spid,[m
+[32m+[m[32m       sr.command[m
+[32m+[m[32mFROM sys.pdw_distributions AS d[m
+[32m+[m[32mRIGHT JOIN sys.dm_pdw_sql_requests AS sr ON d.distribution_id = sr.distribution_id)[m
+[32m+[m[32m*/[m
+[32m+[m
+[32m+[m[32m-- Memory consumption[m
+[32m+[m[32mSELECT[m
+[32m+[m[32m  pc1.pdw_node_id,[m
+[32m+[m[32m  pc1.cntr_value * 100.0/pc2.cntr_value AS Memory_Utilization_Percentage[m
+[32m+[m[32mFROM[m
+[32m+[m[32m-- pc1: current memory[m
+[32m+[m[32msys.dm_pdw_nodes_os_performance_counters AS pc1[m
+[32m+[m[32m-- pc2: total memory allowed for this SQL instance[m
+[32m+[m[32mJOIN sys.dm_pdw_nodes_os_performance_counters AS pc2[m[41m [m
+[32m+[m[32mON pc1.object_name = pc2.object_name AND pc1.pdw_node_id = pc2.pdw_node_id[m
+[32m+[m[32mWHERE[m
+[32m+[m[32mpc1.counter_name = 'Total Server Memory (KB)'[m
+[32m+[m[32mAND pc2.counter_name = 'Target Server Memory (KB)'[m
+[32m+[m
+[1mdiff --git a/samples/sqlops/MonitoringScripts/SkewDetection.sql b/samples/sqlops/MonitoringScripts/SkewDetection.sql[m
+[1mnew file mode 100644[m
+[1mindex 0000000..e576826[m
+[1m--- /dev/null[m
+[1m+++ b/samples/sqlops/MonitoringScripts/SkewDetection.sql[m
+[36m@@ -0,0 +1,128 @@[m
+[32m+[m[32m/*[m
+[32m+[m[32mIF EXISTS ( SELECT * FROM sys.views WHERE name = 'vTableSizes' )[m
+[32m+[m	[32mDROP VIEW [dbo].[vTableSizes];[m
+[32m+[m[32mGO[m
+[32m+[m
+[32m+[m[32mCREATE VIEW dbo.vTableSizes[m
+[32m+[m[32mAS[m
+[32m+[m[32mWITH base[m
+[32m+[m[32mAS[m
+[32m+[m[32m([m
+[32m+[m[32mSELECT[m[41m [m
+[32m+[m[32m GETDATE()                                                             AS  [execution_time][m
+[32m+[m[32m, DB_NAME()                                                            AS  [database_name][m
+[32m+[m[32m, s.name                                                               AS  [schema_name][m
+[32m+[m[32m, t.name                                                               AS  [table_name][m
+[32m+[m[32m, QUOTENAME(s.name)+'.'+QUOTENAME(t.name)                              AS  [two_part_name][m
+[32m+[m[32m, nt.[name]                                                            AS  [node_table_name][m
+[32m+[m[32m, ROW_NUMBER() OVER(PARTITION BY nt.[name] ORDER BY (SELECT NULL))     AS  [node_table_name_seq][m
+[32m+[m[32m, tp.[distribution_policy_desc]                                        AS  [distribution_policy_name][m
+[32m+[m[32m, c.[name]                                                             AS  [distribution_column][m
+[32m+[m[32m, nt.[distribution_id]                                                 AS  [distribution_id][m
+[32m+[m[32m, i.[type]                                                             AS  [index_type][m
+[32m+[m[32m, i.[type_desc]                                                        AS  [index_type_desc][m
+[32m+[m[32m, nt.[pdw_node_id]                                                     AS  [pdw_node_id][m
+[32m+[m[32m, pn.[type]                                                            AS  [pdw_node_type][m
+[32m+[m[32m, pn.[name]                                                            AS  [pdw_node_name][m
+[32m+[m[32m, di.name                                                              AS  [dist_name][m
+[32m+[m[32m, di.position                                                          AS  [dist_position][m
+[32m+[m[32m, nps.[partition_number]                                               AS  [partition_nmbr][m
+[32m+[m[32m, nps.[reserved_page_count]                                            AS  [reserved_space_page_count][m
+[32m+[m[32m, nps.[reserved_page_count] - nps.[used_page_count]                    AS  [unused_space_page_count][m
+[32m+[m[32m, nps.[in_row_data_page_count][m[41m [m
+[32m+[m[32m    + nps.[row_overflow_used_page_count][m[41m [m
+[32m+[m[32m    + nps.[lob_used_page_count]                                        AS  [data_space_page_count][m
+[32m+[m[32m, nps.[reserved_page_count][m[41m [m
+[32m+[m[32m - (nps.[reserved_page_count] - nps.[used_page_count])[m[41m [m
+[32m+[m[32m - ([in_row_data_page_count][m[41m [m
+[32m+[m[32m         + [row_overflow_used_page_count]+[lob_used_page_count])       AS  [index_space_page_count][m
+[32m+[m[32m, nps.[row_count]                                                      AS  [row_count][m
+[32m+[m[32mfrom[m[41m [m
+[32m+[m[32m    sys.schemas s[m
+[32m+[m[32mINNER JOIN sys.tables t[m
+[32m+[m[32m    ON s.[schema_id] = t.[schema_id][m
+[32m+[m[32mINNER JOIN sys.indexes i[m
+[32m+[m[32m    ON  t.[object_id] = i.[object_id][m
+[32m+[m[32m    AND i.[index_id] <= 1[m
+[32m+[m[32mINNER JOIN sys.pdw_table_distribution_properties tp[m
+[32m+[m[32m    ON t.[object_id] = tp.[object_id][m
+[32m+[m[32mINNER JOIN sys.pdw_table_mappings tm[m
+[32m+[m[32m    ON t.[object_id] = tm.[object_id][m
+[32m+[m[32mINNER JOIN sys.pdw_nodes_tables nt[m
+[32m+[m[32m    ON tm.[physical_name] = nt.[name][m
+[32m+[m[32mINNER JOIN sys.dm_pdw_nodes pn[m
+[32m+[m[32m    ON  nt.[pdw_node_id] = pn.[pdw_node_id][m
+[32m+[m[32mINNER JOIN sys.pdw_distributions di[m
+[32m+[m[32m    ON  nt.[distribution_id] = di.[distribution_id][m
+[32m+[m[32mINNER JOIN sys.dm_pdw_nodes_db_partition_stats nps[m
+[32m+[m[32m    ON nt.[object_id] = nps.[object_id][m
+[32m+[m[32m    AND nt.[pdw_node_id] = nps.[pdw_node_id][m
+[32m+[m[32m    AND nt.[distribution_id] = nps.[distribution_id][m
+[32m+[m[32mLEFT OUTER JOIN (select * from sys.pdw_column_distribution_properties where distribution_ordinal = 1) cdp[m
+[32m+[m[32m    ON t.[object_id] = cdp.[object_id][m
+[32m+[m[32mLEFT OUTER JOIN sys.columns c[m
+[32m+[m[32m    ON cdp.[object_id] = c.[object_id][m
+[32m+[m[32m    AND cdp.[column_id] = c.[column_id][m
+[32m+[m[32m)[m
+[32m+[m[32m, size[m
+[32m+[m[32mAS[m
+[32m+[m[32m([m
+[32m+[m[32mSELECT[m
+[32m+[m[32m   [execution_time][m
+[32m+[m[32m,  [database_name][m
+[32m+[m[32m,  [schema_name][m
+[32m+[m[32m,  [table_name][m
+[32m+[m[32m,  [two_part_name][m
+[32m+[m[32m,  [node_table_name][m
+[32m+[m[32m,  [node_table_name_seq][m
+[32m+[m[32m,  [distribution_policy_name][m
+[32m+[m[32m,  [distribution_column][m
+[32m+[m[32m,  [distribution_id][m
+[32m+[m[32m,  [index_type][m
+[32m+[m[32m,  [index_type_desc][m
+[32m+[m[32m,  [pdw_node_id][m
+[32m+[m[32m,  [pdw_node_type][m
+[32m+[m[32m,  [pdw_node_name][m
+[32m+[m[32m,  [dist_name][m
+[32m+[m[32m,  [dist_position][m
+[32m+[m[32m,  [partition_nmbr][m
+[32m+[m[32m,  [reserved_space_page_count][m
+[32m+[m[32m,  [unused_space_page_count][m
+[32m+[m[32m,  [data_space_page_count][m
+[32m+[m[32m,  [index_space_page_count][m
+[32m+[m[32m,  [row_count][m
+[32m+[m[32m,  ([reserved_space_page_count] * 8.0)                                 AS [reserved_space_KB][m
+[32m+[m[32m,  ([reserved_space_page_count] * 8.0)/1000                      
