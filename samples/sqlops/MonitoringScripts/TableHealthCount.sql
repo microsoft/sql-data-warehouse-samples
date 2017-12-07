@@ -1,10 +1,10 @@
-/* IF EXISTS ( SELECT * FROM sys.views WHERE name = 'vSegmentQuality' )
-	DROP VIEW [dbo].[vSegmentQuality];
-GO
+/* Retuns the number of tables which may be suffering from poor quality segments */
 
-CREATE VIEW dbo.vSegmentQuality
-AS
-SELECT
+Select * FROM 
+(
+    SELECT    Count(*) AS Poor_Quality_Segments
+    FROM
+        (SELECT
         GETDATE()                                                               AS [execution_date]
 ,       DB_Name()                                                               AS [database_name]
 ,       s.name                                                                  AS [schema_name]
@@ -44,16 +44,7 @@ JOIN    sys.[tables] t                              ON  mp.[object_id]          
 JOIN    sys.[schemas] s                             ON t.[schema_id]            = s.[schema_id]
 GROUP BY
         s.[name]
-,       t.[name]
-;
-GO
-*/
-
-
-Select * FROM 
-(
-    SELECT    Count(*) AS Poor_Quality_Segments
-    FROM    [dbo].[vSegmentQuality]
+,       t.[name]) AS segmentQuality
     WHERE    COMPRESSED_rowgroup_rows_AVG < 100000
             OR INVISIBLE_rowgroup_rows_AVG < 100000
 ) A, 
