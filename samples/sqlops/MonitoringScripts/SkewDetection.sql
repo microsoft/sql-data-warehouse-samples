@@ -1,4 +1,4 @@
-/* Returne the data distribution across all distribution databases to help detect any skew */
+/* Returns the data distribution across all distribution databases to help detect any skew */
 SELECT 
     distribution_id
 ,    SUM(reserved_space_GB)        as Data_Size_GB
