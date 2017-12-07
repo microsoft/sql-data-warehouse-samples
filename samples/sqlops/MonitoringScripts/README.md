@@ -22,7 +22,11 @@ Copy this directory to your local machine. To update your SQL Operatios Studio (
 * QDS integration with SQLDW
 * Azure portal metrics into SQL Ops
 
+## Images
 
+![alt text](https://github.com/Microsoft/sql-data-warehouse-samples/blob/master/samples/sqlops/MonitoringScripts/images/insight_widget_0.PNG)
+
+![alt text](https://github.com/Microsoft/sql-data-warehouse-samples/blob/master/samples/sqlops/MonitoringScripts/images/insight_widget_1.PNG)
 
 
  
