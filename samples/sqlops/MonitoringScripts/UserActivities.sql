@@ -20,4 +20,12 @@ SELECT * FROM
     JOIN  sys.dm_pdw_exec_requests requests
     ON waits.request_id=requests.request_id
     WHERE status <> 'Closed' and waits.session_id <> session_id() and waits.state = 'AcquireResources'
-) C
+) C,
+(-- Waiting load queries
+    SELECT Count(*) AS Loads
+    FROM
+       sys.dm_pdw_dms_external_work s INNER JOIN 
+    sys.dm_pdw_exec_requests r
+        ON r.request_id = s.request_id
+    --WHERE command IN('%CREATE TABLE AS%', '%INSERT%') AND r.status = 'Running' 
+) D
