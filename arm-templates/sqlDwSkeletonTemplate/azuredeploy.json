@@ -1,0 +1,63 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Logical Server Admin Name": {
+            "type": "string"
+        },
+        "Logical Server Password": {
+            "type": "securestring"
+        }
+    },
+    "variables": {
+        "logicalServerName": "[concat('svr', uniqueString(resourceGroup().id))]",
+        "sqlDwDatabaseName": "[concat('dw', uniqueString(resourceGroup().id))]",
+        "automationAccountName": "[concat('auto', uniqueString(resourceGroup().id))]",
+        "runbookName": "[concat('rb', uniqueString(resourceGroup().id))]"
+    },
+    "resources": [{
+        "apiVersion": "2014-04-01-preview",
+        "name": "[variables('logicalServerName')]",
+        "type": "Microsoft.Sql/servers",
+        "location": "westus",
+        "tags": {
+            "displayName": "[variables('logicalServerName')]"
+        },
+        "properties": {
+            "administratorLogin": "[parameters('Logical Server Admin Name')]",
+            "administratorLoginPassword": "[parameters('Logical Server Password')]"
+        },
+        "resources": [{
+                "apiVersion": "2014-04-01-preview",
+                "dependsOn": [
+                    "[variables('logicalServerName')]"
+                ],
+                "location": "westus",
+                "name": "AllowAllWindowsAzureIps",
+                "properties": {
+                    "startIpAddress": "0.0.0.0",
+                    "endIpAddress": "0.0.0.0"
+                },
+                "type": "firewallrules"
+            },
+            {
+                "type": "databases",
+                "name": "[variables('sqlDwDatabaseName')]",
+                "apiVersion": "2014-04-01-preview",
+                "location": "westus",
+                "tags": {
+                    "displayName": "[variables('sqlDwDatabaseName')]"
+                },
+                "dependsOn": [
+                    "[variables('logicalServerName')]"
+                ],
+                "properties": {
+                    "collation": "SQL_Latin1_General_CP1_CI_AS",
+                    "edition": "DataWarehouse",
+                    "requestedServiceObjectiveName": "DW400"
+                }
+            }
+        ]
+    }],
+    "outputs": {}
+}
