@@ -12,14 +12,13 @@
     "variables": {
         "logicalServerName": "[concat('svr', uniqueString(resourceGroup().id))]",
         "sqlDwDatabaseName": "[concat('dw', uniqueString(resourceGroup().id))]",
-        "automationAccountName": "[concat('auto', uniqueString(resourceGroup().id))]",
-        "runbookName": "[concat('rb', uniqueString(resourceGroup().id))]"
+        "deploymentLocation": "westus"
     },
     "resources": [{
         "apiVersion": "2014-04-01-preview",
         "name": "[variables('logicalServerName')]",
         "type": "Microsoft.Sql/servers",
-        "location": "westus",
+        "location": "[variables('deploymentLocation')]",
         "tags": {
             "displayName": "[variables('logicalServerName')]"
         },
@@ -32,7 +31,7 @@
                 "dependsOn": [
                     "[variables('logicalServerName')]"
                 ],
-                "location": "westus",
+                "location": "[variables('deploymentLocation')]",
                 "name": "AllowAllWindowsAzureIps",
                 "properties": {
                     "startIpAddress": "0.0.0.0",
@@ -44,7 +43,7 @@
                 "type": "databases",
                 "name": "[variables('sqlDwDatabaseName')]",
                 "apiVersion": "2014-04-01-preview",
-                "location": "westus",
+                "location": "[variables('deploymentLocation')]",
                 "tags": {
                     "displayName": "[variables('sqlDwDatabaseName')]"
                 },
