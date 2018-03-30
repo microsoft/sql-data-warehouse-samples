@@ -212,23 +212,26 @@ namespace DBLoader
                     {
                         if (Convert.ToInt32(value.ToString().Substring(0, 4)) < (globals.Columns[curcol].Type == "datetime" ? 1753 : (globals.Columns[curcol].Type == "datetime2" ? 1 : 1900)))
                             return OutputValueErrMsg(ref value, "Year value is too small", null);
-                        if (globals.Columns[curcol].Type != "datetime2" && value.Length > 19)       // strip fractional seconds off of datetime and smalldatetime
+                        int dot = value.ToString().IndexOf(".");
+                        if (dot > 0)                                                                    // fractional seconds given?
                         {
-                            string tmp = value.ToString();
-                            value.Clear();
-                            value.Append(tmp.Substring(0, tmp.IndexOf('.')));
-                        }
-                        else
-                        {
-                            int dot = value.ToString().IndexOf('.');
-                            if (value.Length - dot > 8)
+                            if (globals.Columns[curcol].Type == "smalldatetime")                        // strip fractional seconds off smalldatetime
                             {
                                 string tmp = value.ToString();
                                 value.Clear();
-                                value.Append(tmp.Substring(0, dot + 3));              // limitation here is .NET datetime - in theory this could be a datetime2(1), which would fail...
+                                value.Append(tmp.Substring(0, tmp.IndexOf('.')));
+                            }
+                            else
+                            {
+                                if (value.Length - dot > 3)
+                                {
+                                    string tmp = value.ToString();
+                                    value.Clear();
+                                    value.Append(tmp.Substring(0, dot + 3));                            // limitation here is .NET datetime - in theory this could be a datetime2(1), which would fail...
+                                }
                             }
                         }
-                        // SqlDateTime dt = SqlDateTime.Parse(value.ToString());
+                        SqlDateTime dt = SqlDateTime.Parse(value.ToString());
                     }
                     catch (Exception e)
                     {
