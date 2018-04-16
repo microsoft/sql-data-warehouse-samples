@@ -11,6 +11,7 @@
 
 using System;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
 using System.IO.Compression;
@@ -65,6 +66,7 @@ namespace DBLoader
         public long filelines = 1, lines = 0, lineswritten = 0;
         private long maxbadcols = globals.maxbadcols;
         private int rowsperbcwrite = globals.rowsperbcwrite;
+        private SqlBulkCopy bc = null;
         #endregion
 
         // Constructor - local file system file
@@ -273,6 +275,51 @@ namespace DBLoader
             return true;
         }
 
+        private async Task DoBulkCopy(DataTable thisdt)
+        {
+            // note that only one thread at a time does a bulk insert - so we don't have multi-threading issues accessing the bc object.
+            int retry = 0, retrycon = 5;
+            while (retry < 5)
+            {
+                try
+                {
+                    await bc.WriteToServerAsync(thisdt);                                                        // synchronously bulk write table to SQL table
+                    break;
+                }
+                catch (Exception e)
+                {
+                    await Console.Out.WriteLineAsync("Exception on Bulk Copy Write: " + e.Message);
+                    if (++retry >= 5) await Console.Out.WriteLineAsync("Error: Failed to perform bulk copy write to server.");
+                    else
+                    {
+                        retrycon = 5;
+                        bc.Close();                                                                             // close likely disconnected Bulk Copy object
+                        await Console.Out.WriteLineAsync("Retry " + retry.ToString() + " of Bulk Copy Operation (after a 15 second wait)");
+                        while (retrycon > 0)
+                        {
+                            Thread.Sleep(15000);
+                            try
+                            {
+                                // re-initialize Bulk Copy object - connection etc.
+                                bc = new SqlBulkCopy(globals.constr, SqlBulkCopyOptions.TableLock | SqlBulkCopyOptions.KeepNulls | SqlBulkCopyOptions.KeepIdentity) { DestinationTableName = "[" + globals.schema + "].[" + globals.tablename + "]" };
+                                bc.BulkCopyTimeout = 0;
+                                retrycon = 0;
+                            }
+                            catch (Exception e2)
+                            {
+                                await Console.Out.WriteLineAsync("Exception on reconnect of bulk copy connection: " + e2.Message);
+                                await Console.Out.WriteLineAsync("Will retry connection in 15 seconds");
+                                retrycon--;
+                            }
+                        }
+                    }
+                }
+            }
+            thisdt.Clear();                                                                                     // clear data table we were writing
+            thisdt.Dispose();
+        }
+
+
         public fileprocstats Process()
         {
             int ind, charrd;
@@ -290,8 +337,7 @@ namespace DBLoader
                 IOBuffer iobuffer = new IOBuffer();                                                 // allocate buffers for file IO
                 dt = globals.dt.Clone();                                                            // set up a DataTable with the table schema
                 dr = dt.NewRow();                                                                   // get a new row with the schema structure
-                SqlBulkCopy bc = new SqlBulkCopy(globals.constr, SqlBulkCopyOptions.TableLock | SqlBulkCopyOptions.KeepNulls | SqlBulkCopyOptions.KeepIdentity)
-                    { DestinationTableName = "[" + globals.schema + "].[" + globals.tablename + "]" };
+                bc = new SqlBulkCopy(globals.constr, SqlBulkCopyOptions.TableLock | SqlBulkCopyOptions.KeepNulls | SqlBulkCopyOptions.KeepIdentity) { DestinationTableName = "[" + globals.schema + "].[" + globals.tablename + "]" };
                 bc.BulkCopyTimeout = 0;                                                             // never time out
 
                 if (fi == null)                                                                     // file from Azure Blob Storage or ADL?
@@ -448,14 +494,9 @@ namespace DBLoader
                                 lines++;                                                            // increment "line" count in the input file - i.e. the input row count
                                 if (--rowsperbcwrite == 0)                                          // decrement rows per SQL write counter until we hit zero
                                 {
-                                    if (bctask != null)                                             // did we have a previous async SQL bulk copy transfer?
-                                    {
-                                        bctask.Wait();                                              // wait for previous bulk copy to finish
-                                        olddt.Clear();                                              // clear data table we were writing
-                                        olddt.Dispose();
-                                    }
+                                    if (bctask != null) bctask.Wait();                              // did we have a previous async SQL bulk copy transfer? If so, wait for completion...
                                     olddt = dt;                                                     // save reference to current data table
-                                    bctask = bc.WriteToServerAsync(olddt);                          // asynchronously bulk write table to SQL table
+                                    bctask = DoBulkCopy(olddt);                                     // asynchronously bulk write table to SQL table
                                     dt = globals.dt.Clone();                                        // clone table metadata only to reset DataTable
                                     rowsperbcwrite = globals.rowsperbcwrite;                        // reset count down counter for next SQL write
                                 }
