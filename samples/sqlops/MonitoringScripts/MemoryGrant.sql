@@ -13,13 +13,13 @@ FROM (
 	FROM (
 		SELECT schm_name
 			,table_name
-			,SUM(column_count) AS column_count
-			,ISNULL(SUM(short_string_count), 0) AS short_string_count
-			,ISNULL(SUM(long_string_count), 0) AS long_string_count
+			,SUM(CAST(column_count AS BIGINT)) AS column_count
+			,ISNULL(SUM(CAST(short_string_count AS BIGINT)), 0) AS short_string_count
+			,ISNULL(SUM(CAST(long_string_count AS BIGINT)), 0) AS long_string_count
 		FROM (
 			SELECT sm.name AS schm_name
 				,tb.name AS table_name
-				,COUNT(co.column_id) AS column_count
+				,COUNT(CAST(co.column_id AS BIGINT)) AS column_count
 				,CASE 
 					WHEN co.system_type_id IN (
 							167
@@ -28,7 +28,7 @@ FROM (
 							,239
 							)
 						AND co.max_length <= 32
-						THEN COUNT(co.column_id)
+						THEN COUNT(CAST(co.column_id AS BIGINT))
 					END AS short_string_count
 				,CASE 
 					WHEN co.system_type_id IN (
@@ -38,7 +38,7 @@ FROM (
 							,239
 							)
 						AND co.max_length > 32
-						THEN COUNT(co.column_id)
+						THEN COUNT(CAST(co.column_id AS BIGINT))
 					END AS long_string_count
 			FROM sys.schemas AS sm
 			INNER JOIN sys.tables AS tb ON sm.[schema_id] = tb.[schema_id]
