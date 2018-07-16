@@ -1,17 +1,17 @@
 MicroStrategy, Inc.
 
-#Integrating MicroStrategy Analytics with Azure SQL Data Warehouse
+# Integrating MicroStrategy Analytics with Azure SQL Data Warehouse
 
 This document provides an overview of Azure SQL Data Warehouse and how MicroStrategy integrates with SQL Data Warehouse 
 
-##Introduction
+## Introduction
 This paper provides an overview of MicroStrategy and Azure SQL Data Warehouse (SQL DW) architectures and best practices for integrating the two technologies to deliver business intelligence at scale. The range of analytical functionality of MicroStrategy is supplemented by the features and processing power provided by SQL Data Warehouse. 
 
-###About MicroStrategy
+### About MicroStrategy
 MicroStrategy is built to enable the Intelligent Enterprise—to quickly deploy sophisticated analytical and security applications at scale. Our platform architecture is uniquely suited to deliver high performance applications and meet the business intelligence demands of every user and every organization.
 The MicroStrategy platform provides VLDB drivers for all supported RDBMS platforms to generate optimized SQL that takes advantage of database specific functionality.  The full set of VLDB properties is documented in the MicroStrategy System Administration Guide.  This guide discusses settings that are most relevant to implementing MicroStrategy with SQL Data Warehouse.
 
-###About SQL Data Warehouse  
+### About SQL Data Warehouse  
 The SQL Data Warehouse database is a shared-nothing, massively parallel processing (MPP), columnar database that decouples compute and storage to provide elastic performance at scale. SQL Data Warehouse is comprised of a control node and multiple compute nodes, each of which is built on Microsoft SQL Server technology. 
 
 Rather than have users choose their hardware configurations, SQL Data Warehouse offers performance through scale-units known as Data Warehouse Units (DWUs). Generally, a customer can expect linear improvements in performance of scans, aggregations, and CTAS statements with increases in DWUs. Scaling out also impacts the number of readers and writers for data ingestion and export, as well as the number of concurrent queries.
@@ -38,7 +38,7 @@ SQL Data Warehouse supports three primary distribution styles:
 2. Round Robin – SQL Data Warehouse will distribute each incoming row in a round robin fashion
 3. Replicated – SQL Data Warehouse will replicate the table on each of the compute nodes, backed by a round robin table for insert performance. 
 
-#####Distribution Best Practices
+##### Distribution Best Practices
 1. Hash distribute keys on common join conditions.
 Each table can only have one distribution key. As a rule of thumb, you should look at your typical query patterns and find the most common join conditions such as those between fact and the largest dimension tables as candidates for distribution. This will ensure that data is generally collocated at query time. 
 2. Choose an integer type for your distribution key if possible.
@@ -102,11 +102,11 @@ MicroStrategy internally breaks down every user request into one or more jobs th
 
 By default, MicroStrategy opens multiple connections called Database Threads to any data source. This is illustrated in the diagram below.
 
-![MicroStrategy Intelligence Server WLM](.\media\WLM.png)
+![MicroStrategy Intelligence Server WLM](./media/WLM.png)
 
 A typical BI environment encompasses queries ranging from very quick and urgent to long-running and low priority. To avoid the scenario where a small number of expensive queries can block all access to database resources it all database threads are assigned priority classes (High, Medium and Low). When report jobs are submitted, jobs are assigned a priority based on a list of different application parameters – User groups, Application type, Project, Request type and Cost. The MicroStrategy work load management routes each job according to their priority to their corresponding database threads. When no database threads are available jobs will be queued until a database thread of the appropriate class becomes available.
 
-![MicroStrategy Intelligence Server WLM Queue Priority](.\media\query_priority.png)
+![MicroStrategy Intelligence Server WLM Queue Priority](./media/query_priority.png)
 
 For more information on how to set these priorities refer to technical note <https://community.microstrategy.com/s/article/KB5401-How-to-set-Group-Prioritization-in-MicroStrategy>.
 
@@ -136,7 +136,7 @@ SELECT  *
 FROM    sys.dm_pdw_exec_requests
 WHERE   [label] LIKE '%MSTR%'
 ```
-![Exec Requests](.\media\exec_requests.png)
+![Exec Requests](./media/exec_requests.png)
 
 #### Recommendation for Prompted Reports
 
@@ -374,7 +374,7 @@ From  store_item_93     a11
       Join  lookup_day  a12
         on  (a11.cur_trn_dt = a12.cur_trn_dt)
 
- ```
+```
 
 #### Sub Query Type
 
@@ -408,11 +408,11 @@ where  ((exists (select    r11.store_nbr
         And   r11.store_nbr = a11.store_nbr))
 and a12.year_id>1993)
 group by     a12.year_id
- ```
+```
 
 Some reports may perform better with Option 6 – “Use temporary table, falling back to IN for correlated subquery”.  Reports that include a filter with an “AND NOT set qualification” (e.g. AND NOT relationship filter) will likely benefit from using temp tables to resolve the subquery.  However, such reports will probably benefit more from using the Set Operator Optimization discussed below.
 
-![VLDB Settings](.\media\VLDB_settings.png)
+![VLDB Settings](./media/VLDB_settings.png)
 
 The other settings are not likely to be advantageous with  SQL DW
 
