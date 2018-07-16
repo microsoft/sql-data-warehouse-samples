@@ -88,11 +88,11 @@ Additionally, it needs to be assumed that other workloads are being simultaneous
 
 Workload Management (WLM) is necessary to optimize access to database resources for concurrently executing queries. The goals of a functional workload management are to
 
--          Optimally leverage available (hardware) resources for performance and throughput
+- Optimally leverage available (hardware) resources for performance and throughput
 
--          Prioritize access for high priority jobs
+- Prioritize access for high priority jobs
 
--          Assure resource availability by avoiding system lock-up by any small set of jobs
+- Assure resource availability by avoiding system lock-up by any small set of jobs
 
 Effective workload management starts with comprehensive monitoring, allowing identifying bottleneck conditions, and then leveraging the available platform tools to implement a workload management strategy that meets all of the above goals.
 
