@@ -7,6 +7,24 @@ IF EXISTS (SELECT * FROM sys.procedures WHERE SCHEMA_NAME(schema_id) = N'microso
 GO
 
 -- Remove the views
+PRINT 'Info: Removing the ''microsoft.vw_query_step_details'' view';
+GO
+IF EXISTS (SELECT * FROM sys.views WHERE SCHEMA_NAME(schema_id) = N'microsoft' AND name = N'vw_query_step_details')
+    DROP VIEW microsoft.vw_query_step_details;
+GO
+
+PRINT 'Info: Removing the ''microsoft.vw_query_steps'' view';
+GO
+IF EXISTS (SELECT * FROM sys.views WHERE SCHEMA_NAME(schema_id) = N'microsoft' AND name = N'vw_query_steps')
+    DROP VIEW microsoft.vw_query_steps;
+GO
+
+PRINT 'Info: Removing the ''microsoft.vw_active_queries'' view';
+GO
+IF EXISTS (SELECT * FROM sys.views WHERE SCHEMA_NAME(schema_id) = N'microsoft' AND name = N'vw_active_queries')
+    DROP VIEW microsoft.vw_active_queries;
+GO
+
 PRINT 'Info: Removing the ''microsoft.vw_query_queue'' view';
 GO
 
