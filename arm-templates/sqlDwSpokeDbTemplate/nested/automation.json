@@ -18,7 +18,7 @@
         },
         "scriptUri": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/Microsoft/sql-data-warehouse-samples/master/arm-templates/sqlDwSpokeDbTemplate/AddSpokeDbsWithET.ps1"
+            "defaultValue": "https://raw.githubusercontent.com/Microsoft/sql-data-warehouse-samples/hubspokeupdates/arm-templates/sqlDwSpokeDbTemplate/AddSpokeDbsWithET.ps1"
         },
         "logicalServerName": {
             "type": "string"
