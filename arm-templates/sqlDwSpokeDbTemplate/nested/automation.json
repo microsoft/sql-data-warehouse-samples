@@ -8,7 +8,9 @@
         },
         "automationAccountLocation": {
             "type": "string",
-            "defaultValue": "West Central US"
+            "defaultValue": "West Central US",
+            "allowedValues": ["Southeast Asia","Australia Southeast","Canada Central","Japan East","Korea Central","South Central US","East US 2",
+                              "West US 2","West Central US","Central India","UK South","West Europe", "North Europe", "Brazil South"]
         },
         "automationAccountSku": {
             "type": "string",
@@ -43,13 +45,15 @@
         }
     },
     "variables": {
-        "runbookName": "spokeDbSetup"
+        "runbookName": "spokeDbSetup",
+        "automationAccountCondensed": "[replace(parameters('automationAccountLocation'),' ','')]",
+        "automationAccountRegion": "[toLower(variables('automationAccountCondensed'))]"
     },
     "resources": [{
         "name": "[parameters('automationAccountName')]",
         "type": "Microsoft.Automation/automationAccounts",
         "apiVersion": "2015-10-31",
-        "location": "[parameters('automationAccountLocation')]",
+        "location": "[variables('automationAccountRegion')]",
         "tags": {},
         "properties": {
             "sku": {
@@ -73,7 +77,7 @@
                 "name": "[variables('runbookName')]",
                 "type": "runbooks",
                 "apiVersion": "2015-01-01-preview",
-                "location": "westcentralus",
+                "location": "[variables('automationAccountRegion')]",
                 "dependsOn": [
                     "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
                 ],

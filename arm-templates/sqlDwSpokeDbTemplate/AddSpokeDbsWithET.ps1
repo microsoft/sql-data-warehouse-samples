@@ -272,8 +272,6 @@ workflow spokeDbSetup {
 			DROP TABLE #GrantPermissionsFromControlTable
 		
 		END
-
-		END
 		", $DwConn)
 		$GenerateDatamartExternalTableDefinitionsAndGrantSelect.CommandTimeout = 0
 		$GenerateDatamartExternalTableDefinitionsAndGrantSelect.ExecuteNonQuery()
