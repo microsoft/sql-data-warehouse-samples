@@ -2,26 +2,32 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "logicalServerName": {
+        "existingLogicalServerName": {
             "type": "string",
             "metadata": {
-                "description": "The server name of your pre-existing SQL Data Warehouse."
+                "description": "Name of pre-existing server hosting SQL DataWarehouse."
             }
         },
-        "logicalServerLocation": {
+        "existingLogicalServerLocation": {
+            "type": "string",
+            "allowedValues": ["East Asia", "Southeast Asia", "Australia Southeast", "Canada Central", "Canada East", "China North", "China East", "Central India", "South India", "Japan East", "Japan West", "Korea Central", "North Central US", "South Central US", "East US", "East US 2", "West US", "West US 2", "Central US", "West Central US", "North Europe", "West Europe", "Brazil South", "US Gov Iowa", "US Gov Virginia", "US Gov Texas", "US Gov Arizona", "Germany Central", "Germany Northeast", "UK West", "UK South"]
+        },
+        "existingLogicalServerAdminUserName": {
             "type": "string"
         },
-        "logicalServerAdminUserName": {
-            "type": "string"
-        },
-        "logicalServerAdminPassword": {
+        "existingLogicalServerAdminPassword": {
             "type": "securestring"
         },
-        "sqlDwDatabaseName": {
+        "existingSqlDwDatabaseName": {
             "type": "string",
             "metadata": {
                 "description": "The database name of your pre-existing SQL Data Warehouse."
             }
+        },
+        "automationAccountLocation": {
+            "type": "string",
+            "defaultValue": "West Central US",
+            "allowedValues": ["Southeast Asia","Australia Southeast","Canada Central","Japan East","Korea Central","South Central US","East US 2","West US 2","West Central US","Central India","UK South","West Europe", "North Europe", "Brazil South"]
         },
         "numSpokeDb": {
             "type": "int",
@@ -37,9 +43,12 @@
         "spokeTemplateUri": "https://raw.githubusercontent.com/Microsoft/sql-data-warehouse-samples/master/arm-templates/sqlDwSpokeDbTemplate/nested/spokeDb.json",
         "automationTemplateUri": "https://raw.githubusercontent.com/Microsoft/sql-data-warehouse-samples/master/arm-templates/sqlDwSpokeDbTemplate/nested/automation.json",
         "elasticPoolName": "[concat('pool', uniquestring(resourceGroup().id))]",
-        "spokeDbBaseName": "[concat('spoke', uniquestring(resourceGroup().id), 'dbn')]"
+        "spokeDbBaseName": "[concat('spoke', uniquestring(resourceGroup().id), 'dbn')]",
+        "serverLocationCondensed": "[replace(parameters('existingLogicalServerLocation'),' ','')]",
+        "serverRegion": "[toLower(variables('serverLocationCondensed'))]"
     },
-    "resources": [{
+    "resources": [
+        {
             "apiVersion": "2015-01-01",
             "name": "spokeDbDeployment",
             "type": "Microsoft.Resources/deployments",
@@ -57,10 +66,10 @@
                         "value": "[parameters('numSpokeDb')]"
                     },
                     "logicalServerName": {
-                        "value": "[parameters('logicalServerName')]"
+                        "value": "[parameters('existingLogicalServerName')]"
                     },
                     "serverLocation": {
-                        "value": "[parameters('logicalServerLocation')]"
+                        "value": "[variables('serverRegion')]"
                     },
                     "poolEdition": {
                         "value": "PremiumRS"
@@ -81,7 +90,6 @@
                         "value": "[variables('elasticPoolName')]"
                     }
                 }
-
             }
         },
         {
@@ -96,16 +104,16 @@
                 },
                 "parameters": {
                     "logicalServerName": {
-                        "value": "[parameters('logicalServerName')]"
+                        "value": "[parameters('existingLogicalServerName')]"
                     },
                     "serverAdminUserName": {
-                        "value": "[parameters('logicalServerAdminUserName')]"
+                        "value": "[parameters('existingLogicalServerAdminUserName')]"
                     },
                     "serverAdminPassword": {
-                        "value": "[parameters('logicalServerAdminPassword')]"
+                        "value": "[parameters('existingLogicalServerAdminPassword')]"
                     },
                     "datawarehouseName": {
-                        "value": "[parameters('sqlDwDatabaseName')]"
+                        "value": "[parameters('existingSqlDwDatabaseName')]"
                     },
                     "databaseCount": {
                         "value": "[parameters('numSpokeDb')]"
@@ -122,10 +130,6 @@
                 "spokeDbDeployment"
             ]
         }
-
-
     ],
-    "outputs": {
-
-    }
+    "outputs": {}
 }
