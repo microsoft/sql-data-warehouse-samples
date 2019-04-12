@@ -7,6 +7,12 @@ IF EXISTS (SELECT * FROM sys.procedures WHERE SCHEMA_NAME(schema_id) = N'microso
 GO
 
 -- Remove the views
+PRINT 'Info: Removing the ''microsoft.vw_sql_requests'' view';
+GO
+IF EXISTS (SELECT * FROM sys.views WHERE SCHEMA_NAME(schema_id) = N'microsoft' AND name = N'vw_sql_requests')
+    DROP VIEW microsoft.vw_sql_requests;
+GO
+
 PRINT 'Info: Removing the ''microsoft.vw_query_step_details'' view';
 GO
 IF EXISTS (SELECT * FROM sys.views WHERE SCHEMA_NAME(schema_id) = N'microsoft' AND name = N'vw_query_step_details')

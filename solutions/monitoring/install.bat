@@ -44,6 +44,7 @@ sqlcmd -S %_server% -d %_database% -U %_username% -P %_password% -I -i .\scripts
 sqlcmd -S %_server% -d %_database% -U %_username% -P %_password% -I -i .\scripts\views\microsoft.vw_query_slots.sql
 sqlcmd -S %_server% -d %_database% -U %_username% -P %_password% -I -i .\scripts\views\microsoft.vw_query_steps.sql
 sqlcmd -S %_server% -d %_database% -U %_username% -P %_password% -I -i .\scripts\views\microsoft.vw_query_step_details.sql
+sqlcmd -S %_server% -d %_database% -U %_username% -P %_password% -I -i .\scripts\views\microsoft.vw_sql_requests.sql
 
 REM Security Views
 sqlcmd -S %_server% -d %_database% -U %_username% -P %_password% -I -i .\scripts\views\microsoft.vw_security_role_members.sql
