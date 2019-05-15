@@ -1,0 +1,680 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "LogicAppName": {
+      "type": "string",
+      "metadata": "Name of Azure Logic app",
+      "defaultValue": "EventBasedAutoScaleDW"
+    },
+    "DeploymentLocation": {
+      "type": "string",
+      "metadata": "Azure region for Logic app deployment",
+      "defaultValue": "westus2",
+      "allowedValues": [
+        "eastasia",
+        "southeastasia",
+        "centralus",
+        "eastus",
+        "eastus2",
+        "westus",
+        "northcentralus",
+        "southcentralus",
+        "northeurope",
+        "westeurope",
+        "japanwest",
+        "japaneast",
+        "brazilsouth",
+        "australiaeast",
+        "australiasoutheast",
+        "southindia",
+        "centralindia",
+        "westindia",
+        "canadacentral",
+        "canadaeast",
+        "uksouth",
+        "ukwest",
+        "westcentralus",
+        "westus2"
+      ]
+    },
+    "SQL DW ResourceGroup": {
+      "type": "string",
+      "metadata": "The name of the resource group containing the existing SQL Data Warehouse."
+    },
+    "SQL DW ServerName": {
+      "type": "string",
+      "metadata": "The logical server name of the pre-existing SQL Data Warehouse. Do not include 'database.windows.net'"
+    },
+    "SQL DW Name": {
+      "type": "string",
+      "metadata": "The name of the pre-existing SQL Data Warehouse instance."
+    },
+    "Minimum DW SLO": {
+      "type": "string",
+      "metadata": "Min desired SLO of Data Warehouse",
+      "allowedValues": [
+        "DW100c (ScaleLevel:0)",
+        "DW200c (ScaleLevel:1)",
+        "DW300c (ScaleLevel:2)",
+        "DW400c (ScaleLevel:3)",
+        "DW500c (ScaleLevel:4)",
+        "DW1000c (ScaleLevel:5)",
+        "DW1500c (ScaleLevel:6)",
+        "DW2000c (ScaleLevel:7)",
+        "DW2500c (ScaleLevel:8)",
+        "DW3000c (ScaleLevel:9)",
+        "DW5000c (ScaleLevel:10)",
+        "DW6000c (ScaleLevel:11)",
+        "DW7500c (ScaleLevel:12)",
+        "DW10000c (ScaleLevel:13)",
+        "DW15000c (ScaleLevel:14)",
+        "DW30000c (ScaleLevel:15)"
+      ]
+    },
+    "Maximum DW SLO": {
+      "type": "string",
+      "metadata": "Max desired SLO of Data Warehouse",
+      "allowedValues": [
+        "DW100c (ScaleLevel:0)",
+        "DW200c (ScaleLevel:1)",
+        "DW300c (ScaleLevel:2)",
+        "DW400c (ScaleLevel:3)",
+        "DW500c (ScaleLevel:4)",
+        "DW1000c (ScaleLevel:5)",
+        "DW1500c (ScaleLevel:6)",
+        "DW2000c (ScaleLevel:7)",
+        "DW2500c (ScaleLevel:8)",
+        "DW3000c (ScaleLevel:9)",
+        "DW5000c (ScaleLevel:10)",
+        "DW6000c (ScaleLevel:11)",
+        "DW7500c (ScaleLevel:12)",
+        "DW10000c (ScaleLevel:13)",
+        "DW15000c (ScaleLevel:14)",
+        "DW30000c (ScaleLevel:15)"
+      ]
+    }
+  },
+  "variables": {
+    "subscriptionId": "[subscription().subscriptionId]",
+    "dwResourceId": "[concat('/subscriptions/',variables('subscriptionId'),'/resourceGroups/',parameters('SQL DW ResourceGroup'),'/providers/Microsoft.Sql/servers/',parameters('SQL DW ServerName'),'/databases/',parameters('SQL DW Name'))]",
+    "scaleUpAlertName": "[concat('dwScaleUpAlert_',parameters('LogicAppName'))]",
+    "scaleDownAlertName": "[concat('dwScaleDownAlert_',parameters('LogicAppName'))]",
+    "defaultAlertSeverity": 2,
+    "resourceGroupName": "[resourceGroup().name]",
+    "actionGroupName": "[concat(parameters('LogicAppName'),'NotificationGroup')]",
+    "actionGroupId": "[concat('/subscriptions/',variables('subscriptionId'),'/resourceGroups/',variables('resourceGroupName'),'/providers/Microsoft.Insights/actionGroups/',variables('actionGroupName'))]",
+    "logicAppId": "[concat('/subscriptions/',variables('subscriptionId'),'/resourceGroups/',parameters('SQL DW ResourceGroup'),'/providers/Microsoft.Logic/workflows/',parameters('LogicAppName'))]",
+    "minDWSLO": "[trim(split(parameters('Minimum DW SLO'),'(')[0])]",
+    "minDWSLOLevel": "[int(replace(split(parameters('Minimum DW SLO'),':')[1],')',''))]",
+    "maxDWSLO": "[trim(split(parameters('Maximum DW SLO'),'(')[0])]",
+    "maxDWSLOLevel": "[int(replace(split(parameters('Maximum DW SLO'),':')[1],')',''))]"
+  },
+  "resources": [
+    {
+      "name": "[parameters('LogicAppName')]",
+      "apiVersion": "2018-07-01-preview",
+      "type": "Microsoft.Logic/workflows",
+      "location": "[parameters('DeploymentLocation')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Get_Warehouse_state": {
+              "inputs": {
+                "authentication": {
+                  "type": "ManagedServiceIdentity"
+                },
+                "method": "GET",
+                "uri": "https://management.azure.com/subscriptions/@{variables('RestAPIVariables')['SubscriptionId']}/resourceGroups/@{variables('RestAPIVariables')['ResourceGroupName']}/providers/Microsoft.Sql/servers/@{variables('RestAPIVariables')['ServerName']}/databases/@{variables('RestAPIVariables')['DatabaseName']}?api-version=2017-10-01-preview"
+              },
+              "runAfter": {
+                "Initialize_API_variables": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Http"
+            },
+            "Get_current_SLO_level": {
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "CurrentSLOLevel",
+                    "type": "Integer",
+                    "value": "@int(variables('DWSLODictionary')[body('Get_Warehouse_state')['properties']['currentServiceObjectiveName']])"
+                  }
+                ]
+              },
+              "runAfter": {
+                "Initialize_DW_SLO_level_array": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable"
+            },
+            "Get_latest_alert_value": {
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "LatestAlert",
+                    "type": "Object",
+                    "value": "@last(triggerBody()?['data']?['context']?['condition']?['allOf'])"
+                  }
+                ]
+              },
+              "runAfter": {},
+              "type": "InitializeVariable"
+            },
+            "Initialize_API_variables": {
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "RestAPIVariables",
+                    "type": "Object",
+                    "value": {
+                      "DatabaseName": "[parameters('SQL DW Name')]",
+                      "MaxSLO": "[variables('MaxDWSLO')]",
+                      "MaxSLOLevel": "[variables('maxDWSLOLevel')]",
+                      "MinSLO": "[variables('MinDWSLO')]",
+                      "MinSLOLevel": "[variables('minDWSLOLevel')]",
+                      "ResourceGroupName": "[parameters('SQL DW ResourceGroup')]",
+                      "ServerName": "[parameters('SQL DW ServerName')]",
+                      "SubscriptionId": "[subscription().subscriptionId]",
+                      "TenantId": "[subscription().tenantId]"
+                    }
+                  }
+                ]
+              },
+              "runAfter": {
+                "Get_latest_alert_value": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable"
+            },
+            "Initialize_DW_SLO_Dictionary": {
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "DWSLODictionary",
+                    "type": "Object",
+                    "value": {
+                      "DW10000c": 13,
+                      "DW1000c": 5,
+                      "DW100c": 0,
+                      "DW15000c": 14,
+                      "DW1500c": 6,
+                      "DW2000c": 7,
+                      "DW200c": 1,
+                      "DW2500c": 8,
+                      "DW30000c": 15,
+                      "DW3000c": 9,
+                      "DW300c": 2,
+                      "DW400c": 3,
+                      "DW5000c": 10,
+                      "DW500c": 4,
+                      "DW6000c": 11,
+                      "DW7500c": 12
+                    }
+                  }
+                ]
+              },
+              "runAfter": {
+                "Get_Warehouse_state": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable"
+            },
+            "Initialize_DW_SLO_level_array": {
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "DWSLOArray",
+                    "type": "Array",
+                    "value": [
+                      "DW100c",
+                      "DW200c",
+                      "DW300c",
+                      "DW400c",
+                      "DW500c",
+                      "DW1000c",
+                      "DW1500c",
+                      "DW2000c",
+                      "DW2500c",
+                      "DW3000c",
+                      "DW5000c",
+                      "DW6000c",
+                      "DW7500c",
+                      "DW10000c",
+                      "DW15000c",
+                      "DW30000c"
+                    ]
+                  }
+                ]
+              },
+              "runAfter": {
+                "Initialize_DW_SLO_Dictionary": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable"
+            },
+            "ScaleDownDataWarehouseIfApplicable": {
+              "actions": {
+                "ScaleDown_Data_Warehouse": {
+                  "inputs": {
+                    "authentication": {
+                      "type": "ManagedServiceIdentity"
+                    },
+                    "body": {
+                      "location": "@{body('Get_Warehouse_state')['location']}",
+                      "sku": {
+                        "name": "@{variables('DWSLOArray')[sub(variables('CurrentSLOLevel'),1)]}"
+                      }
+                    },
+                    "method": "PUT",
+                    "uri": "https://management.azure.com/subscriptions/@{variables('RestAPIVariables')['SubscriptionId']}/resourceGroups/@{variables('RestAPIVariables')['ResourceGroupName']}/providers/Microsoft.Sql/servers/@{variables('RestAPIVariables')['ServerName']}/databases/@{variables('RestAPIVariables')['DatabaseName']}?api-version=2017-10-01-preview"
+                  },
+                  "runAfter": {
+                    "Until_ZeroActiveQueries": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "Http"
+                },
+                "Until_ZeroActiveQueries": {
+                  "actions": {
+                    "GetActiveQueryCount": {
+                      "inputs": {
+                        "authentication": {
+                          "type": "ManagedServiceIdentity"
+                        },
+                        "method": "GET",
+                        "uri": "https://management.azure.com/subscriptions/@{variables('RestAPIVariables')['SubscriptionId']}/resourceGroups/@{variables('RestAPIVariables')['ResourceGroupName']}/providers/Microsoft.Sql/servers/@{variables('RestAPIVariables')['ServerName']}/databases/@{variables('RestAPIVariables')['DatabaseName']}/dataWarehouseUserActivities/current?api-version=2017-03-01-preview"
+                      },
+                      "runAfter": {},
+                      "type": "Http"
+                    },
+                    "Wait5minsIfActiveQuery": {
+                      "actions": {
+                        "Wait_5mins": {
+                          "inputs": {
+                            "interval": {
+                              "count": 5,
+                              "unit": "Minute"
+                            }
+                          },
+                          "runAfter": {},
+                          "type": "Wait"
+                        }
+                      },
+                      "expression": {
+                        "and": [
+                          {
+                            "greater": [
+                              "@body('GetActiveQueryCount')['properties']['activeQueriesCount']",
+                              0
+                            ]
+                          }
+                        ]
+                      },
+                      "runAfter": {
+                        "GetActiveQueryCount": [
+                          "Succeeded"
+                        ]
+                      },
+                      "type": "If"
+                    }
+                  },
+                  "expression": "@equals(coalesce(body('GetActiveQueryCount')['properties']?['activeQueriesCount'], 1), 0)",
+                  "limit": {
+                    "count": 60,
+                    "timeout": "PT1H"
+                  },
+                  "runAfter": {},
+                  "type": "Until"
+                }
+              },
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@variables('LatestAlert')['metricName']",
+                      "cpu_percent"
+                    ]
+                  },
+                  {
+                    "equals": [
+                      "@variables('LatestAlert')['operator']",
+                      "LessThan"
+                    ]
+                  },
+                  {
+                    "greater": [
+                      "@variables('CurrentSLOLevel')",
+                      "@variables('RestAPIVariables')['MinSLOLevel']"
+                    ]
+                  },
+                  {
+                    "less": [
+                      "@variables('LatestAlert')['metricValue']",
+                      "@int(variables('LatestAlert')['threshold'])"
+                    ]
+                  }
+                ]
+              },
+              "runAfter": {
+                "Get_current_SLO_level": [
+                  "Succeeded"
+                ]
+              },
+              "type": "If"
+            },
+            "ScaleUpDataWarehouseIfApplicable": {
+              "actions": {
+                "ScaleUp_Data_Warehouse": {
+                  "inputs": {
+                    "authentication": {
+                      "type": "ManagedServiceIdentity"
+                    },
+                    "body": {
+                      "location": "@{body('Get_Warehouse_state')['location']}",
+                      "sku": {
+                        "name": "@variables('DWSLOArray')[add(variables('CurrentSLOLevel'),1)]"
+                      }
+                    },
+                    "method": "PUT",
+                    "uri": "https://management.azure.com/subscriptions/@{variables('RestAPIVariables')['SubscriptionId']}/resourceGroups/@{variables('RestAPIVariables')['ResourceGroupName']}/providers/Microsoft.Sql/servers/@{variables('RestAPIVariables')['ServerName']}/databases/@{variables('RestAPIVariables')['DatabaseName']}?api-version=2017-10-01-preview"
+                  },
+                  "runAfter": {},
+                  "type": "Http"
+                }
+              },
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@variables('LatestAlert')['metricName']",
+                      "cpu_percent"
+                    ]
+                  },
+                  {
+                    "equals": [
+                      "@variables('LatestAlert')['operator']",
+                      "GreaterThanOrEqual"
+                    ]
+                  },
+                  {
+                    "less": [
+                      "@variables('CurrentSLOLevel')",
+                      "@variables('RestAPIVariables')['MaxSLOLevel']"
+                    ]
+                  },
+                  {
+                    "greaterOrEquals": [
+                      "@variables('LatestAlert')['metricValue']",
+                      "@int(variables('LatestAlert')['threshold'])"
+                    ]
+                  }
+                ]
+              },
+              "runAfter": {
+                "Get_current_SLO_level": [
+                  "Succeeded"
+                ]
+              },
+              "type": "If"
+            }
+          },
+          "contentVersion": "1.0.0.0",
+          "outputs": {},
+          "parameters": {},
+          "triggers": {
+            "manual": {
+              "inputs": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "properties": {
+                        "alertContext": {
+                          "properties": {
+                            "condition": {
+                              "properties": {
+                                "allOf": {
+                                  "items": {
+                                    "properties": {
+                                      "dimensions": {
+                                        "items": {
+                                          "properties": {
+                                            "name": {
+                                              "type": "string"
+                                            },
+                                            "value": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "name",
+                                            "value"
+                                          ],
+                                          "type": "object"
+                                        },
+                                        "type": "array"
+                                      },
+                                      "metricName": {
+                                        "type": "string"
+                                      },
+                                      "metricNamespace": {
+                                        "type": "string"
+                                      },
+                                      "metricValue": {
+                                        "type": "number"
+                                      },
+                                      "operator": {
+                                        "type": "string"
+                                      },
+                                      "threshold": {
+                                        "type": "string"
+                                      },
+                                      "timeAggregation": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "metricName",
+                                      "metricNamespace",
+                                      "operator",
+                                      "threshold",
+                                      "timeAggregation",
+                                      "dimensions",
+                                      "metricValue"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "type": "array"
+                                },
+                                "windowSize": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            },
+                            "conditionType": {
+                              "type": "string"
+                            },
+                            "properties": {}
+                          },
+                          "type": "object"
+                        },
+                        "essentials": {
+                          "properties": {
+                            "alertContextVersion": {
+                              "type": "string"
+                            },
+                            "alertId": {
+                              "type": "string"
+                            },
+                            "alertRule": {
+                              "type": "string"
+                            },
+                            "alertTargetIDs": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "essentialsVersion": {
+                              "type": "string"
+                            },
+                            "firedDateTime": {
+                              "type": "string"
+                            },
+                            "monitorCondition": {
+                              "type": "string"
+                            },
+                            "monitoringService": {
+                              "type": "string"
+                            },
+                            "originAlertId": {
+                              "type": "string"
+                            },
+                            "resolvedDateTime": {
+                              "type": "string"
+                            },
+                            "severity": {
+                              "type": "string"
+                            },
+                            "signalType": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "schemaId": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "kind": "Http",
+              "type": "Request"
+            }
+          }
+        },
+        "parameters": {},
+        "integrationAccount": null
+      }
+    },
+    {
+      "type": "Microsoft.Insights/actionGroups",
+      "apiVersion": "2018-03-01",
+      "name": "[variables('actionGroupName')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Logic/workflows',parameters('LogicAppName'))]"
+      ],
+      "location": "Global",
+      "properties": {
+        "groupShortName": "dwautoscale",
+        "enabled": true,
+        "logicAppReceivers": [
+          {
+            "name": "[parameters('LogicAppName')]",
+            "resourceId": "[variables('logicAppId')]",
+            "callbackUrl": "[listCallbackUrl(concat(resourceId('Microsoft.Logic/workflows', parameters('LogicAppName')), '/triggers/manual'), '2018-07-01-preview').value]"
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('scaleUpAlertName')]",
+      "type": "Microsoft.Insights/metricAlerts",
+      "location": "global",
+      "apiVersion": "2018-03-01",
+      "tags": {},
+      "dependsOn": [
+        "[resourceId('Microsoft.Logic/workflows',parameters('LogicAppName'))]",
+        "[resourceId('Microsoft.Insights/actionGroups',variables('actionGroupName'))]"
+      ],
+      "properties": {
+        "description": "Triggers an alert when a SQL Data Warehouse is operating at capacity and should be scaled up.",
+        "severity": "[variables('defaultAlertSeverity')]",
+        "enabled": true,
+        "scopes": [
+          "[variables('dwResourceId')]"
+        ],
+        "evaluationFrequency": "PT15M",
+        "windowSize": "PT15M",
+        "criteria": {
+          "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+          "allOf": [
+            {
+              "name": "CPU Usage >= 80%",
+              "metricName": "cpu_percent",
+              "dimensions": [],
+              "operator": "GreaterThanOrEqual",
+              "threshold": "80",
+              "timeAggregation": "Average"
+            }
+          ]
+        },
+        "actions": [
+          {
+            "actionGroupId": "[variables('actionGroupId')]"
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('scaleDownAlertName')]",
+      "type": "Microsoft.Insights/metricAlerts",
+      "location": "global",
+      "apiVersion": "2018-03-01",
+      "tags": {},
+      "dependsOn": [
+        "[resourceId('Microsoft.Logic/workflows',parameters('LogicAppName'))]",
+        "[resourceId('Microsoft.Insights/actionGroups',variables('actionGroupName'))]"
+      ],
+      "properties": {
+        "description": "Triggers an alert when a SQL Data Warehouse is idle and can be scaled down.",
+        "severity": "[variables('defaultAlertSeverity')]",
+        "enabled": true,
+        "scopes": [
+          "[variables('dwResourceId')]"
+        ],
+        "evaluationFrequency": "PT15M",
+        "windowSize": "PT1H",
+        "criteria": {
+          "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+          "allOf": [
+            {
+              "name": "CPU Usage < 40%",
+              "metricName": "cpu_percent",
+              "dimensions": [],
+              "operator": "LessThan",
+              "threshold": "40",
+              "timeAggregation": "Average"
+            }
+          ]
+        },
+        "actions": [
+          {
+            "actionGroupId": "[variables('actionGroupId')]"
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {}
+}
