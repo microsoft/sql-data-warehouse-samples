@@ -1,0 +1,493 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "LogicAppName": {
+      "type": "string",
+      "metadata": "Name of Azure Logic app",
+      "defaultValue": "ScheduledAutoPauseResumeDW"
+    },
+    "DeploymentLocation": {
+      "type": "string",
+      "metadata": "Azure region for Logic app deployment",
+      "defaultValue": "westus2",
+      "allowedValues": [
+        "eastasia",
+        "southeastasia",
+        "centralus",
+        "eastus",
+        "eastus2",
+        "westus",
+        "northcentralus",
+        "southcentralus",
+        "northeurope",
+        "westeurope",
+        "japanwest",
+        "japaneast",
+        "brazilsouth",
+        "australiaeast",
+        "australiasoutheast",
+        "southindia",
+        "centralindia",
+        "westindia",
+        "canadacentral",
+        "canadaeast",
+        "uksouth",
+        "ukwest",
+        "westcentralus",
+        "westus2"
+      ]
+    },
+    "Frequency": {
+      "type": "string",
+      "metadata": "Choose whether to run schedule every day of the week, or only on weekdays",
+      "defaultValue": "Weekdays",
+      "allowedValues": [
+      	"Daily",
+      	"Weekdays"
+      ]
+    },
+    "SQL DW ResourceGroup": {
+      "type": "string",
+      "metadata": "The name of the resource group containing the existing SQL Data Warehouse."
+    },
+    "SQL DW ServerName": {
+      "type": "string",
+      "metadata": "The logical server name of the pre-existing SQL Data Warehouse exists. Do not include 'database.windows.net'"     
+    },
+    "SQL DW Name": {
+      "type": "string",
+      "metadata": "The name of the pre-existing SQL Data Warehouse instance."     
+    }, 
+    "TIME_ZONE": {
+      "type": "string",
+      "metadata": "Timezone for the schedule. Consult https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx for more information",
+      "defaultValue": "Pacific Standard Time",
+      "allowedValues": [
+      	"Dateline Standard Time",
+          "Samoa Standard Time",
+          "Hawaiian Standard Time",
+          "Alaskan Standard Time",
+          "Pacific Standard Time",
+          "Mountain Standard Time",
+          "Mexico Standard Time 2",
+          "U.S. Mountain Standard Time",
+          "Central Standard Time",
+          "Canada Central Standard Time",
+          "Mexico Standard Time",
+          "Central America Standard Time",
+          "Eastern Standard Time",
+          "U.S. Eastern Standard Time",
+          "S.A. Pacific Standard Time",
+          "Atlantic Standard Time",
+          "S.A. Western Standard Time",
+          "Pacific S.A. Standard Time",
+          "Newfoundland and Labrador Standard Time",
+          "E. South America Standard Time",
+          "S.A. Eastern Standard Time",
+          "Greenland Standard Time",
+          "Mid-Atlantic Standard Time",
+          "Azores Standard Time",
+          "Cape Verde Standard Time",
+          "GMT Standard Time",
+          "Greenwich Standard Time",
+          "Central Europe Standard Time",
+          "Central European Standard Time",
+          "Romance Standard Time",
+          "W. Europe Standard Time",
+          "W. Central Africa Standard Time",
+          "E. Europe Standard Time",
+          "Egypt Standard Time",
+          "FLE Standard Time",
+          "GTB Standard Time",
+          "Israel Standard Time",
+          "South Africa Standard Time",
+          "Russian Standard Time",
+          "Arab Standard Time",
+          "E. Africa Standard Time",
+          "Arabic Standard Time",
+          "Iran Standard Time",
+          "Arabian Standard Time",
+          "Caucasus Standard Time",
+          "Transitional Islamic State of Afghanistan Standard Time",
+          "Ekaterinburg Standard Time",
+          "West Asia Standard Time",
+          "India Standard Time",
+          "Nepal Standard Time",
+          "Central Asia Standard Time",
+          "Sri Lanka Standard Time",
+          "N. Central Asia Standard Time",
+          "Myanmar Standard Time",
+          "S.E. Asia Standard Time",
+          "North Asia Standard Time",
+          "China Standard Time",
+          "Singapore Standard Time",
+          "Taipei Standard Time",
+          "W. Australia Standard Time",
+          "North Asia East Standard Time",
+          "Korea Standard Time",
+          "Tokyo Standard Time",
+          "Yakutsk Standard Time",
+          "A.U.S. Central Standard Time",
+          "Cen. Australia Standard Time",
+          "A.U.S. Eastern Standard Time",
+          "E. Australia Standard Time",
+          "Tasmania Standard Time",
+          "Vladivostok Standard Time",
+          "West Pacific Standard Time",
+          "Central Pacific Standard Time",
+          "Fiji Islands Standard Time",
+          "New Zealand Standard Time",
+          "Tonga Standard Time"
+      ]
+    },
+    "ResumeTime": {
+      "type": "string",
+      "metadata": "Time of day when the data warehouse will be resumed",
+       "allowedValues": [
+          "12:00 AM (  0:00 )",
+          "12:30 AM (  0:30 )",
+          "01:00 AM (  1:00 )",
+          "01:30 AM (  1:30 )",
+          "02:00 AM (  2:00 )",
+          "02:30 AM (  2:30 )",
+          "03:00 AM (  3:00 )",
+          "03:30 AM (  3:30 )",
+          "04:00 AM (  4:00 )",
+          "04:30 AM (  4:30 )",
+          "05:00 AM (  5:00 )",
+          "05:30 AM (  5:30 )",
+          "06:00 AM (  6:00 )",
+          "06:30 AM (  6:30 )",
+          "07:00 AM (  7:00 )",
+          "07:30 AM (  7:30 )",
+          "08:00 AM (  8:00 )",
+          "08:30 AM (  8:30 )",
+          "09:00 AM (  9:00 )",
+          "09:30 AM (  9:30 )",
+          "10:00 AM ( 10:00 )",
+          "10:30 AM ( 10:30 )",
+          "11:00 AM ( 11:00 )",
+          "11:30 AM ( 11:30 )",
+          "12:00 PM ( 12:00 )",
+          "12:30 PM ( 12:30 )",
+          "01:00 PM ( 13:00 )",
+          "01:30 PM ( 13:30 )",
+          "02:00 PM ( 14:00 )",
+          "02:30 PM ( 14:30 )",
+          "03:00 PM ( 15:00 )",
+          "03:30 PM ( 15:30 )",
+          "04:00 PM ( 16:00 )",
+          "04:30 PM ( 16:30 )",
+          "05:00 PM ( 17:00 )",
+          "05:30 PM ( 17:30 )",
+          "06:00 PM ( 18:00 )",
+          "06:30 PM ( 18:30 )",
+          "07:00 PM ( 19:00 )",
+          "07:30 PM ( 19:30 )",
+          "08:00 PM ( 20:00 )",
+          "08:30 PM ( 20:30 )",
+          "09:00 PM ( 21:00 )",
+          "09:30 PM ( 21:30 )",
+          "10:00 PM ( 22:00 )",
+          "10:30 PM ( 22:30 )",
+          "11:00 PM ( 23:00 )",
+          "11:30 PM ( 23:30 )"
+      ]
+    },
+    "PauseTime": {
+      "type": "string",
+      "metadata": "Time of day when the data warehouse will be paused",
+       "allowedValues": [
+          "12:00 AM (  0:00 )",
+          "12:30 AM (  0:30 )",
+          "01:00 AM (  1:00 )",
+          "01:30 AM (  1:30 )",
+          "02:00 AM (  2:00 )",
+          "02:30 AM (  2:30 )",
+          "03:00 AM (  3:00 )",
+          "03:30 AM (  3:30 )",
+          "04:00 AM (  4:00 )",
+          "04:30 AM (  4:30 )",
+          "05:00 AM (  5:00 )",
+          "05:30 AM (  5:30 )",
+          "06:00 AM (  6:00 )",
+          "06:30 AM (  6:30 )",
+          "07:00 AM (  7:00 )",
+          "07:30 AM (  7:30 )",
+          "08:00 AM (  8:00 )",
+          "08:30 AM (  8:30 )",
+          "09:00 AM (  9:00 )",
+          "09:30 AM (  9:30 )",
+          "10:00 AM ( 10:00 )",
+          "10:30 AM ( 10:30 )",
+          "11:00 AM ( 11:00 )",
+          "11:30 AM ( 11:30 )",
+          "12:00 PM ( 12:00 )",
+          "12:30 PM ( 12:30 )",
+          "01:00 PM ( 13:00 )",
+          "01:30 PM ( 13:30 )",
+          "02:00 PM ( 14:00 )",
+          "02:30 PM ( 14:30 )",
+          "03:00 PM ( 15:00 )",
+          "03:30 PM ( 15:30 )",
+          "04:00 PM ( 16:00 )",
+          "04:30 PM ( 16:30 )",
+          "05:00 PM ( 17:00 )",
+          "05:30 PM ( 17:30 )",
+          "06:00 PM ( 18:00 )",
+          "06:30 PM ( 18:30 )",
+          "07:00 PM ( 19:00 )",
+          "07:30 PM ( 19:30 )",
+          "08:00 PM ( 20:00 )",
+          "08:30 PM ( 20:30 )",
+          "09:00 PM ( 21:00 )",
+          "09:30 PM ( 21:30 )",
+          "10:00 PM ( 22:00 )",
+          "10:30 PM ( 22:30 )",
+          "11:00 PM ( 23:00 )",
+          "11:30 PM ( 23:30 )"
+      ]
+    }
+  },
+  "variables": {
+    "pauseTimeMinute": "[replace(split(substring(parameters('PauseTime'), 11, 5), ':')[1],'00', '0')]",
+    "pauseTimeHour": "[split(substring(parameters('PauseTime'), 11, 5), ':')[0]]",
+    "resumeTimeMinute": "[replace(split(substring(parameters('ResumeTime'), 11, 5), ':')[1],'00', '0')]",
+    "resumeTimeHour": "[split(substring(parameters('ResumeTime'), 11, 5), ':')[0]]",
+    "recurrenceHours": ["[variables('pauseTimeHour')]", "[variables('resumeTimeHour')]"],
+    "recurrenceMinutes": [0, 30],
+    "pauseTimeString": "[substring(parameters('PauseTime'), 0, 8)]",
+    "resumeTimeString": "[substring(parameters('ResumeTime'), 0, 8)]",
+    "dailySchedule": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    "weekdaySchedule": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "recurrenceSchedule": "[if(equals(parameters('Frequency'), 'Weekdays'), variables('weekdaySchedule'), variables('dailySchedule'))]"
+  },
+  "resources": [
+    {
+      "name": "[parameters('LogicAppName')]",
+      "apiVersion": "2017-07-01",
+      "type": "Microsoft.Logic/workflows",
+      "location": "[parameters('DeploymentLocation')]",
+      "identity": { "type": "SystemAssigned"},
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Initialize_API_variables": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "RestAPIVariables",
+                    "type": "Object",
+                    "value": {
+                      "ServerName": "[parameters('SQL DW ServerName')]",
+                      "DatabaseName": "[parameters('SQL DW Name')]",
+                      "ResourceGroupName": "[parameters('SQL DW ResourceGroup')]",
+                      "SubscriptionId": "[subscription().subscriptionId]",
+                      "TenantId": "[subscription().tenantId]",
+                      "ScheduleTimeZone": "[parameters('TIME_ZONE')]",
+                      "ResumeTime": "[variables('resumeTimeString')]",
+                      "PauseTime": "[variables('pauseTimeString')]"
+                    }
+                  }
+                ]
+              },
+              "runAfter": {}
+            },
+            "Initialize_ActiveQueryCount_variable": {
+              "inputs": {
+                  "variables": [
+                      {
+                          "name": "ActiveQueryCount",
+                          "type": "Integer",
+                          "value": 1
+                      }
+                  ]
+              },
+              "runAfter": {
+                  "Initialize_API_variables": [ "Succeeded" ]
+              },
+              "type": "InitializeVariable"
+            },
+            "Get_Warehouse_state": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://management.azure.com/subscriptions/@{variables('RestAPIVariables')['SubscriptionId']}/resourceGroups/@{variables('RestAPIVariables')['ResourceGroupName']}/providers/Microsoft.Sql/servers/@{variables('RestAPIVariables')['ServerName']}/databases/@{variables('RestAPIVariables')['DatabaseName']}?api-version=2017-10-01-preview",
+                "authentication": { "type": "ManagedServiceIdentity" }               
+              },
+              "runAfter": {
+                "Initialize_ActiveQueryCount_variable": [ "Succeeded" ]
+              }
+            },
+            "PauseDataWarehouseIfOnline": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@body('Get_Warehouse_state')['properties']['status']",
+                      "Online"
+                    ]
+                  },
+                  {
+                    "greaterOrEquals": [
+                        "@convertFromUtc(utcNow(), variables('RestAPIVariables')['ScheduleTimeZone'], 't')",
+                        "@addMinutes(variables('RestAPIVariables')['PauseTime'], -5, 't')"
+                    ]
+                  },
+                  {
+                      "less": [
+                          "@convertFromUtc(utcNow(), variables('RestAPIVariables')['ScheduleTimeZone'], 't')",
+                          "@addMinutes(variables('RestAPIVariables')['PauseTime'], 11, 't')"
+                      ]
+                  }
+                ]
+              },
+              "actions": {
+                "Pause_Data_Warehouse": {
+                  "type": "Http",
+                  "inputs": {
+                    "method": "POST",
+                    "uri": "https://management.azure.com/subscriptions/@{variables('RestAPIVariables')['SubscriptionId']}/resourceGroups/@{variables('RestAPIVariables')['ResourceGroupName']}/providers/Microsoft.Sql/servers/@{variables('RestAPIVariables')['ServerName']}/databases/@{variables('RestAPIVariables')['DatabaseName']}/pause?api-version=2017-10-01-preview",
+                    "authentication": { "type": "ManagedServiceIdentity" }    
+                  },
+                  "runAfter": {
+                    "Until_ZeroActiveQueries": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Until_ZeroActiveQueries": {
+                  "type": "Until",
+                  "expression": "@equals(variables('ActiveQueryCount'), 0)",
+                  "limit": {
+                    "count": 200,
+                    "timeout": "PT3H"
+                  },
+                  "actions": {
+                    "GetActiveQueryCount": {
+                      "type": "Http",
+                      "inputs": {
+                        "method": "GET",
+                        "uri": "https://management.azure.com/subscriptions/@{variables('RestAPIVariables')['SubscriptionId']}/resourceGroups/@{variables('RestAPIVariables')['ResourceGroupName']}/providers/Microsoft.Sql/servers/@{variables('RestAPIVariables')['ServerName']}/databases/@{variables('RestAPIVariables')['DatabaseName']}/dataWarehouseUserActivities/current?api-version=2017-03-01-preview",
+                        "authentication": { "type": "ManagedServiceIdentity" }    
+                      },
+                      "runAfter": {}
+                    },
+                    "Update_ActiveQueryCount_variable": {
+                      "type": "SetVariable",
+                      "inputs": {
+                          "name": "ActiveQueryCount",
+                          "value": "@body('GetActiveQueryCount')['properties']['activeQueriesCount']"
+                      },
+                      "runAfter": {
+                        "GetActiveQueryCount": [ "Succeeded" ]
+                      }                        
+                    },
+                    "Wait5minsIfActiveQuery": {
+                      "type": "If",
+                      "actions": {
+                        "Wait_5mins": {
+                            "inputs": {
+                                "interval": { "count": 5, "unit": "Minute" }
+                            },
+                            "runAfter": {},
+                            "type": "Wait"
+                        }
+                      },
+                      "expression": {
+                        "and": [
+                          {
+                            "greater": [ "@variables('ActiveQueryCount')", 0 ]
+                          }
+                        ]
+                      },
+                      "runAfter": {
+                          "Update_ActiveQueryCount_variable": [
+                              "Succeeded"
+                          ]
+                      }                      
+                  }
+                  },
+                  "runAfter": { }
+                }
+              },
+              "runAfter": {
+                "Get_Warehouse_state": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "ResumeDataWarehouseIfPaused": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@body('Get_Warehouse_state')['properties']['status']",
+                      "Paused"
+                    ]
+                  },
+                  {
+                    "greaterOrEquals": [
+                        "@convertFromUtc(utcNow(), variables('RestAPIVariables')['ScheduleTimeZone'], 't')",
+                        "@addMinutes(variables('RestAPIVariables')['ResumeTime'], -5, 't')"
+                    ]
+                  },
+                  {
+                      "less": [
+                          "@convertFromUtc(utcNow(), variables('RestAPIVariables')['ScheduleTimeZone'], 't')",
+                          "@addMinutes(variables('RestAPIVariables')['ResumeTime'], 11, 't')"
+                      ]
+                  }
+                ]
+              },
+              "actions": {
+                "Resume_Data_Warehouse": {
+                  "type": "Http",
+                  "inputs": {
+                    "method": "POST",
+                    "uri": "https://management.azure.com/subscriptions/@{variables('RestAPIVariables')['SubscriptionId']}/resourceGroups/@{variables('RestAPIVariables')['ResourceGroupName']}/providers/Microsoft.Sql/servers/@{variables('RestAPIVariables')['ServerName']}/databases/@{variables('RestAPIVariables')['DatabaseName']}/resume?api-version=2017-10-01-preview",
+                    "authentication": { "type": "ManagedServiceIdentity" }
+                  },
+                  "runAfter": {}
+                }    
+              },
+              "runAfter": {
+                "Get_Warehouse_state": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "parameters": {},
+          "triggers": {
+            "Recurrence": {
+              "type": "Recurrence",
+              "recurrence": {
+                "frequency": "Week",
+                "interval": 1,
+                "timeZone": "[parameters('TIME_ZONE')]",
+                "startTime": "2019-01-01T00:00:00Z",
+                "schedule": {
+                  "weekDays": "[variables('recurrenceSchedule')]",
+                  "hours": "[variables('recurrenceHours')]", 
+                  "minutes": "[variables('recurrenceMinutes')]"
+                }
+              }
+            }
+          },
+          "contentVersion": "1.0.0.0",
+          "outputs": {}
+        },
+        "parameters": {},
+        "integrationAccount": null
+      }        
+    }    
+  ],
+  "outputs": {}
+}
