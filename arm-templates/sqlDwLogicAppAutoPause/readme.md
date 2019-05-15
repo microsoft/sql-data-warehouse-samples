@@ -4,7 +4,7 @@ This sample includes 3 templates to showcase different scenarios for using Logic
 
 ## Scenario 1: Scheduled pause and resume for a single data warehouse
 
-![scheduled pause and resume](media/scenario1-pause-resume-overview.png)
+![scheduled pause and resume](media/Scenario1-pause-resume-overview.png)
 
 In this scenario, you deploy a timer-based Logic app configured with a [service managed identity that is used to authenticate to SQL Data Warehouse](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview). The Logic app issues pause and resume commands to the data warehouse based on the pause-resume schedule configured during deployment. 
 
