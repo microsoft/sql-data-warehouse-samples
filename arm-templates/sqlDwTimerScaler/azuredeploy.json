@@ -268,7 +268,7 @@
         "scaleDownTimeHour": "[split(substring(parameters('scaleDownTime'), 11, 5), ':')[0]]",
         "scaleUpTime": "[replace(replace('0 x y * * *', 'x', variables('scaleUpTimeMinute')), 'y', variables('scaleUpTimeHour'))]",
         "scaleDownTime": "[replace(replace('0 x y * * *', 'x', variables('scaleDownTimeMinute')), 'y', variables('scaleDownTimeHour'))]",
-        "codePackageLocation": "https://github.com/Microsoft/sql-data-warehouse-samples/blob/master/arm-templates/sqlDwTimerScaler/sqlDwTimerScaler.zip?raw=true"
+        "codePackageLocation": "https://github.com/Microsoft/sql-data-warehouse-samples/blob/main/arm-templates/sqlDwTimerScaler/sqlDwTimerScaler.zip?raw=true"
     },
     "resources": [{
             "type": "Microsoft.Storage/storageAccounts",
