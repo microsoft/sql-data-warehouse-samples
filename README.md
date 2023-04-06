@@ -1,6 +1,6 @@
 # Azure SQL Data Warehouse Samples Repository
 
-This GitHub repository contains code samples that demonstrate how to use [Microsoft's Azure SQL Data Warehouse](http://aka.ms/sqldw) service. Each sample includes a README file
+This GitHub repository contains code samples that demonstrate how to use [Microsoft's Azure Synapse dedicated SQL pools (formerly SQL Data Warehouse)](http://aka.ms/sqldw) service. Each sample includes a README file
 that explains how to run and use the sample.
 
 ## Releases in this repository
@@ -21,6 +21,4 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 
 ## License
 These samples and templates are all licensed under the MIT license. See the license.txt file in the root.
-
-## Questions
-Email questions to: [sqldwsamples@microsoft.com](mailto:sqldwsamples@microsoft.com).
+ 
