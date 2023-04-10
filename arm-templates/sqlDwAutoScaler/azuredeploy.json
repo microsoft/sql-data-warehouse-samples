@@ -255,7 +255,7 @@
       "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'funcstore')]",
       "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
       "sqlDwId": "[resourceId(parameters('SQL DW Resource Group'),'Microsoft.Sql/servers/databases', parameters('SQL DW Logical Server'), parameters('SQL DW Name'))]",
-      "codePackageLocation": "https://github.com/Microsoft/sql-data-warehouse-samples/blob/master/arm-templates/sqlDwAutoScaler/SqlDwAutoScaler.zip?raw=true",
+      "codePackageLocation": "https://github.com/Microsoft/sql-data-warehouse-samples/blob/main/arm-templates/sqlDwAutoScaler/SqlDwAutoScaler.zip?raw=true",
       "scaleUpScheduleStartTimeMinute": "[replace(split(substring(parameters('scaleUpScheduleStartTime'), 11, 5), ':')[1],'00', '0')]",
       "scaleUpScheduleStartTimeHour": "[split(substring(parameters('scaleUpScheduleStartTime'), 11, 5), ':')[0]]",
       "scaleUpScheduleEndTimeMinute": "[replace(split(substring(parameters('scaleUpScheduleEndTime'), 11, 5), ':')[1], '00', '0')]",
@@ -385,7 +385,7 @@
                   "properties": {
                       "mode": "incremental",
                       "templateLink": {
-                          "uri": "https://raw.githubusercontent.com/Microsoft/sql-data-warehouse-samples/master/arm-templates/sqlDwAutoScaler/alert-template.json",
+                          "uri": "https://raw.githubusercontent.com/Microsoft/sql-data-warehouse-samples/main/arm-templates/sqlDwAutoScaler/alert-template.json",
                           "contentVersion": "1.0.0.0"
                       },
                       "parameters": {
