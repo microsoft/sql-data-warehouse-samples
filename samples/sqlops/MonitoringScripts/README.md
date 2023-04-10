@@ -1,6 +1,6 @@
 ## Introduction
 
-The following scripts are leveraged to create custom monitoring dashboard widgets in SQL Operations Studio (preview) for Azure SQL Data Warehouse. 
+The following scripts are leveraged to create custom monitoring dashboard widgets in Azure Data Studio for Azure SQL Data Warehouse. 
 
 ## Current Widgets
 
