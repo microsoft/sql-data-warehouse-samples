@@ -22,3 +22,8 @@ Immediately calculate the memory grant required per table to optimally load into
 ## Storage Size 
 Identify your total storage size which includes total database size, unallocated, and reserved space.
 
+## License
+
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Licensed under the [Source EULA](https://raw.githubusercontent.com/Microsoft/azuredatastudio/main/LICENSE.txt).
